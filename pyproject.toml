@@ -1,0 +1,96 @@
+[build-system]
+requires = ["setuptools>=45", "wheel", "setuptools_scm>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "neuwo_api"
+version = "0.1.0"
+description = "Neuwo API SDK - Python SDK client for the Neuwo content classification API."
+readme = "README.md"
+authors = [
+    {name = "Grzegorz Malisz", email = "grzegorz.malisz@neuwo.ai"}
+]
+maintainers = [
+    {name = "Grzegorz Malisz", email = "grzegorz.malisz@neuwo.ai"}
+]
+requires-python = ">=3.8"
+dependencies = [
+    "requests>=2.25.0",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Internet :: WWW/HTTP",
+    "Typing :: Typed",
+]
+keywords = [
+    "neuwo",
+    "api",
+    "content",
+    "classification",
+    "tagging",
+    "ai",
+    "machine-learning",
+    "iab",
+    "taxonomy",
+    "brand-safety"
+]
+license = {text = "MIT"}
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "black>=23.0.0",
+    "flake8>=6.0.0",
+    "mypy>=1.0.0",
+    "isort>=5.12.0",
+]
+test = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "responses>=0.23.0",
+]
+
+[project.urls]
+Homepage = "https://neuwo.ai"
+Documentation = "https://docs.neuwo.ai"
+Repository = "https://github.com/neuwoai/neuwo-api-sdk-python"
+
+[tool.setuptools]
+packages = ["neuwo_api"]
+
+[tool.setuptools.package-data]
+neuwo_api = ["py.typed"]
+
+[tool.black]
+line-length = 100
+target-version = ["py38", "py39", "py310", "py311", "py312"]
+include = '\.pyi?$'
+
+[tool.isort]
+profile = "black"
+line_length = 100
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "--cov=neuwo_api --cov-report=html --cov-report=term-missing"
