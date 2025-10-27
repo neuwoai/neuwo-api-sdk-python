@@ -97,11 +97,11 @@ print(f"Found {len(response.tags)} tags for the article")
 
 ### REST Client Parameters
 
-| Parameter  | Type  | Default                  | Description                   |
-| ---------- | ----- | ------------------------ | ----------------------------- |
-| `token`    | `str` | **Required**             | REST API authentication token |
-| `base_url` | `str` | **Required**             | Base URL for the API          |
-| `timeout`  | `int` | `60`                     | Request timeout in seconds    |
+| Parameter  | Type  | Default      | Description                   |
+| ---------- | ----- | ------------ | ----------------------------- |
+| `token`    | `str` | **Required** | REST API authentication token |
+| `base_url` | `str` | **Required** | Base URL for the API          |
+| `timeout`  | `int` | `60`         | Request timeout in seconds    |
 
 **Example:**
 
@@ -115,12 +115,12 @@ client = NeuwoRestClient(
 
 ### EDGE Client Parameters
 
-| Parameter  | Type  | Default                  | Description                        |
-| ---------- | ----- | ------------------------ | ---------------------------------- |
-| `token`    | `str` | **Required**             | EDGE API authentication token      |
-| `base_url` | `str` | **Required**             | Base URL for the API               |
-| `timeout`  | `int` | `60`                     | Request timeout in seconds         |
-| `origin`   | `str` | `None`                   | Default Origin header for requests |
+| Parameter  | Type  | Default      | Description                        |
+| ---------- | ----- | ------------ | ---------------------------------- |
+| `token`    | `str` | **Required** | EDGE API authentication token      |
+| `base_url` | `str` | **Required** | Base URL for the API               |
+| `timeout`  | `int` | `60`         | Request timeout in seconds         |
+| `origin`   | `str` | `None`       | Default Origin header for requests |
 
 **Example:**
 
@@ -405,6 +405,78 @@ python -m build
 # Upload to PyPI
 twine upload dist/*
 ```
+
+## CI/CD
+
+### Automated Testing
+
+The [Unit Tests Coverage workflow](.github/workflows/unit-tests-coverage.yaml) automatically runs on every push to `main` or `dev` branches and on pull requests:
+
+- **Python versions tested**: 3.8, 3.9, 3.10, 3.11, 3.12
+- **Coverage reporting**: Results uploaded to Codecov
+- **Test execution**: Full test suite with coverage analysis
+
+### Publishing Pipeline
+
+The [Publish Python Package workflow](.github/workflows/publish-sdk.yaml) enables manual deployment with the following options:
+
+#### Workflow Features:
+
+- Manual trigger via GitHub Actions UI
+- Deploy to **TestPyPI** or **PyPI**
+- Upload artifacts to **GitHub Packages**
+- Auto-create **GitHub releases** with tags
+- Automatic version extraction from `pyproject.toml`
+
+#### Setup Requirements:
+
+Add GitHub secrets for API tokens:
+
+- `PYPI_API_TOKEN` - Production PyPI token
+- `TEST_PYPI_API_TOKEN` - TestPyPI token
+
+#### Workflow Inputs
+
+| Input               | Type    | Default  | Description                                    |
+| ------------------- | ------- | -------- | ---------------------------------------------- |
+| `target`            | choice  | TestPyPI | Deploy to `TestPyPI` or `PyPI`                 |
+| `publish_to_github` | boolean | false    | Upload artifacts to GitHub                     |
+| `create_release`    | boolean | false    | Create GitHub release with tag (only for PyPI) |
+
+#### Usage:
+
+1. **Testing release**:
+
+   - Go to Actions > Publish Python Package > Run workflow
+   - Select: TestPyPI
+   - Test: `pip install -i https://test.pypi.org/simple/ neuwo-api`
+
+2. **Production release**:
+   - Update version in [pyproject.toml](pyproject.toml), [setup.py](setup.py) and [README.md](README.md)
+   - Commit changes to repository
+   - Go to Actions > Publish Python Package > Run workflow
+   - Select: PyPI + Publish to GitHub Packages + Create GitHub release
+   - Creates tag (e.g., `v0.2.0`), GitHub release, and publishes to PyPI
+
+3. **Verify**:
+   - Check PyPI: https://pypi.org/project/neuwo-api/
+   - Check GitHub Release: https://github.com/neuwoai/neuwo-api-sdk-python/releases
+   - Check packages appear in repo
+
+#### What gets created:
+
+- PyPI package: https://pypi.org/project/neuwo-api/
+- GitHub release with `.whl` and `.tar.gz` files
+- Git tag following `v{VERSION}` format
+- Package artifacts in GitHub Actions
+
+**Versioning:**
+
+Follow [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`):
+
+- **MAJOR**: Breaking changes
+- **MINOR**: New features (backward compatible)
+- **PATCH**: Bug fixes (backward compatible)
 
 ## License
 
