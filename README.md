@@ -2,9 +2,9 @@
 
 Python SDK client for the Neuwo content classification API.
 
-<!-- [![PyPI version](https://badge.fury.io/py/neuwo-api.svg)](https://pypi.org/project/neuwo-api/)
+[![PyPI version](https://badge.fury.io/py/neuwo-api.svg)](https://pypi.org/project/neuwo-api/)
 [![Python versions](https://img.shields.io/pypi/pyversions/neuwo-api.svg)](https://pypi.org/project/neuwo-api/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) -->
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Support
 
