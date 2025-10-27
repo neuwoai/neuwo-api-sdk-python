@@ -15,7 +15,6 @@ from neuwo_api.models import (
     SimilarArticle,
     Article,
     GetAiTopicsResponse,
-    ResponseFormat
 )
 
 
@@ -271,11 +270,3 @@ class TestGetAiTopicsResponse:
         data = response.to_dict()
         assert len(data["tags"]) == 1
         assert "smart_tags" in data
-
-
-class TestResponseFormat:
-    """Tests for ResponseFormat enum."""
-    
-    def test_enum_values(self):
-        assert ResponseFormat.JSON.value == "json"
-        assert ResponseFormat.XML.value == "xml"

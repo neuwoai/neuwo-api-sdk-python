@@ -8,7 +8,6 @@ from unittest.mock import Mock, patch
 import pytest
 
 from neuwo_api.exceptions import ValidationError
-from neuwo_api.models import ResponseFormat
 from neuwo_api.rest_client import NeuwoRestClient
 
 
@@ -306,7 +305,7 @@ class TestParseResponse:
         with patch(
             "neuwo_api.rest_client.parse_json_response", return_value={"key": "value"}
         ):
-            result = client._parse_response(mock_response, ResponseFormat.JSON)
+            result = client._parse_response(mock_response, "json")
 
         assert result == {"key": "value"}
 
@@ -318,6 +317,6 @@ class TestParseResponse:
         with patch(
             "neuwo_api.rest_client.parse_xml_response", return_value={"key": "value"}
         ):
-            result = client._parse_response(mock_response, ResponseFormat.XML)
+            result = client._parse_response(mock_response, "xml")
 
         assert result == {"key": "value"}

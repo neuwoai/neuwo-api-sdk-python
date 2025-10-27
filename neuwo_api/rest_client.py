@@ -15,7 +15,6 @@ from .logger import get_logger
 from .models import (
     Article,
     GetAiTopicsResponse,
-    ResponseFormat,
     SimilarArticle,
     TrainingTag,
 )
@@ -97,7 +96,7 @@ class NeuwoRestClient:
         )
 
     def _parse_response(
-        self, response: requests.Response, format: ResponseFormat = ResponseFormat.JSON
+        self, response: requests.Response, format: str = "json"
     ) -> Dict[str, Any]:
         """Parse API response based on format.
 
@@ -113,7 +112,7 @@ class NeuwoRestClient:
         """
         content = response.text
 
-        if format == ResponseFormat.JSON:
+        if format == "json":
             return parse_json_response(content)
         else:  # XML
             return parse_xml_response(content)
@@ -253,7 +252,7 @@ class NeuwoRestClient:
         )
 
         # Parse response
-        response_data = self._parse_response(response, ResponseFormat.JSON)
+        response_data = self._parse_response(response, "json")
 
         # Convert to model
         result = GetAiTopicsResponse.from_dict(response_data)
@@ -347,7 +346,7 @@ class NeuwoRestClient:
         )
 
         # Parse response
-        response_data = self._parse_response(response, ResponseFormat.JSON)
+        response_data = self._parse_response(response, "json")
 
         # Convert to models
         if not isinstance(response_data, list):
@@ -494,7 +493,7 @@ class NeuwoRestClient:
         )
 
         # Parse response
-        response_data = self._parse_response(response, ResponseFormat.JSON)
+        response_data = self._parse_response(response, "json")
 
         # Convert to model
         article = Article.from_dict(response_data)
@@ -566,7 +565,7 @@ class NeuwoRestClient:
         )
 
         # Parse response
-        response_data = self._parse_response(response, ResponseFormat.JSON)
+        response_data = self._parse_response(response, "json")
 
         # Convert to models
         if not isinstance(response_data, list):

@@ -23,13 +23,6 @@ class BrandSafetyIndication(Enum):
         return cls(value.lower())
 
 
-class ResponseFormat(Enum):
-    """API response format options."""
-
-    JSON = "json"
-    XML = "xml"
-
-
 @dataclass
 class TagParent:
     """Represents a parent level in the tag ontology hierarchy.

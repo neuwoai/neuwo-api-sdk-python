@@ -36,7 +36,6 @@ from .models import (
     BrandSafetyTag,
     GetAiTopicsResponse,
     MarketingCategories,
-    ResponseFormat,
     SimilarArticle,
     SmartTag,
     Tag,
@@ -64,7 +63,6 @@ __all__ = [
     "SimilarArticle",
     "Article",
     "GetAiTopicsResponse",
-    "ResponseFormat",
     # Exceptions
     "NeuwoAPIError",
     "AuthenticationError",
