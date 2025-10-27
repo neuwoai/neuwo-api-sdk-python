@@ -93,4 +93,4 @@ testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
-addopts = "--cov=neuwo_api --cov-report=html --cov-report=term-missing"
+addopts = "--cov=neuwo_api --cov-report=term"
