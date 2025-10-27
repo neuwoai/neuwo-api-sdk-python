@@ -19,17 +19,17 @@ Python SDK client for the Neuwo content classification API.
 Install the package using pip:
 
 ```bash
-pip install neuwo_api
+pip install neuwo-api
 ```
 
 Install with optional development dependencies:
 
 ```bash
 # For development
-pip install neuwo_api[dev]
+pip install neuwo-api[dev]
 
 # For testing
-pip install neuwo_api[test]
+pip install neuwo-api[test]
 ```
 
 ## Requirements
