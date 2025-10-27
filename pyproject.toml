@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "neuwo_api"
-version = "0.1.0"
+version = "0.2.0"
 description = "Neuwo API SDK - Python SDK client for the Neuwo content classification API."
 readme = "README.md"
 authors = [

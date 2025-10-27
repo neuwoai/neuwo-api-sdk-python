@@ -5,7 +5,7 @@ This SDK provides convenient access to Neuwo's REST and EDGE APIs for
 AI-powered content tagging, brand safety analysis, and similarity detection.
 """
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 # Import main clients
 from .edge_client import NeuwoEdgeClient
