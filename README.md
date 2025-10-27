@@ -133,6 +133,132 @@ client = NeuwoEdgeClient(
 )
 ```
 
+### API Methods
+
+#### REST API
+
+##### Get AI Topics
+
+```python
+response = client.get_ai_topics(
+    content="Text to analyze",           # Required
+    document_id="doc123",                 # Optional: save to database
+    lang="en",                            # Optional: ISO 639-1 code
+    publication_id="pub1",                # Optional
+    headline="Article Headline",          # Optional
+    tag_limit=15,                         # Optional: max tags (default: 15)
+    tag_min_score=0.1,                    # Optional: min score (default: 0.1)
+    marketing_limit=None,                 # Optional
+    marketing_min_score=0.3,              # Optional (default: 0.3)
+    include_in_sim=True,                  # Optional (default: True)
+    article_url="https://example.com"     # Optional
+)
+```
+
+##### Get Similar Articles
+
+```python
+articles = client.get_similar(
+    document_id="doc123",                 # Required
+    max_rows=10,                          # Optional: limit results
+    past_days=30,                         # Optional: limit by date
+    publication_ids=["pub1", "pub2"]      # Optional: filter by publication
+)
+```
+
+##### Update Article
+
+```python
+from datetime import date
+
+article = client.update_article(
+    document_id="doc123",                 # Required
+    published=date(2024, 1, 15),          # Optional
+    headline="Updated Headline",          # Optional
+    writer="Author Name",                 # Optional
+    category="News",                      # Optional
+    content="Updated content",            # Optional
+    summary="Summary",                    # Optional
+    publication_id="pub1",                # Optional
+    article_url="https://example.com",    # Optional
+    include_in_sim=True                   # Optional
+)
+```
+
+##### Train AI Topics
+
+```python
+training_tags = client.train_ai_topics(
+    document_id="doc123",                 # Required
+    tags=["tag1", "tag2", "tag3"],        # Required
+)
+```
+
+#### EDGE API
+
+##### Get AI Topics (Single URL)
+
+```python
+response = client.get_ai_topics(
+    url="https://example.com/article",    # Required
+    origin="https://yoursite.com"         # Optional: override default origin
+)
+```
+
+##### Get AI Topics with Auto-Retry
+
+```python
+response = client.get_ai_topics_wait(
+    url="https://example.com/article",    # Required
+    origin="https://yoursite.com",        # Optional
+    max_retries=10,                       # Optional (default: 10)
+    retry_interval=6,                     # Optional (default: 6s)
+    initial_delay=2                       # Optional (default: 2s)
+)
+```
+
+##### Get AI Topics (Multiple URLs)
+
+```python
+# From list
+results = client.get_ai_topics_list(
+    urls=["https://example.com/1", "https://example.com/2"],
+    origin="https://yoursite.com"
+)
+
+# From file bytes
+with open("urls.txt", "rb") as f:
+    urls_as_bytes = f.read()
+result = client.get_ai_topics_list(urls_as_bytes)
+```
+
+##### Get Similar Articles
+
+```python
+articles = client.get_similar(
+    document_url="https://example.com/article",  # Required
+    max_rows=10,                                 # Optional
+    past_days=30,                                # Optional
+    publication_ids=["pub1", "pub2"],            # Optional
+    origin="https://yoursite.com"                # Optional
+)
+```
+
+#### Raw Response Methods
+
+All methods have `_raw` variants that return the raw `requests.Response` object:
+
+```python
+# REST
+raw_response = client.get_ai_topics_raw(content="Text")
+print(raw_response.status_code)
+print(raw_response.text)
+
+# EDGE
+raw_response = client.get_ai_topics_raw(url="https://example.com")
+print(raw_response.json())
+```
+
 ## Error Handling
 
 The SDK provides specific exceptions for different error scenarios:
@@ -216,134 +342,6 @@ handler.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 handler.setFormatter(formatter)
 logger.addHandler(handler)
-```
-
-## API Methods
-
-For more detailed examples and use cases, see the [examples folder](examples/) in the repository.
-
-### REST API
-
-#### Get AI Topics
-
-```python
-response = client.get_ai_topics(
-    content="Text to analyze",           # Required
-    document_id="doc123",                 # Optional: save to database
-    lang="en",                            # Optional: ISO 639-1 code
-    publication_id="pub1",                # Optional
-    headline="Article Headline",          # Optional
-    tag_limit=15,                         # Optional: max tags (default: 15)
-    tag_min_score=0.1,                    # Optional: min score (default: 0.1)
-    marketing_limit=None,                 # Optional
-    marketing_min_score=0.3,              # Optional (default: 0.3)
-    include_in_sim=True,                  # Optional (default: True)
-    article_url="https://example.com"     # Optional
-)
-```
-
-#### Get Similar Articles
-
-```python
-articles = client.get_similar(
-    document_id="doc123",                 # Required
-    max_rows=10,                          # Optional: limit results
-    past_days=30,                         # Optional: limit by date
-    publication_ids=["pub1", "pub2"]      # Optional: filter by publication
-)
-```
-
-#### Update Article
-
-```python
-from datetime import date
-
-article = client.update_article(
-    document_id="doc123",                 # Required
-    published=date(2024, 1, 15),          # Optional
-    headline="Updated Headline",          # Optional
-    writer="Author Name",                 # Optional
-    category="News",                      # Optional
-    content="Updated content",            # Optional
-    summary="Summary",                    # Optional
-    publication_id="pub1",                # Optional
-    article_url="https://example.com",    # Optional
-    include_in_sim=True                   # Optional
-)
-```
-
-#### Train AI Topics
-
-```python
-training_tags = client.train_ai_topics(
-    document_id="doc123",                 # Required
-    tags=["tag1", "tag2", "tag3"],        # Required
-)
-```
-
-### EDGE API
-
-#### Get AI Topics (Single URL)
-
-```python
-response = client.get_ai_topics(
-    url="https://example.com/article",    # Required
-    origin="https://yoursite.com"         # Optional: override default origin
-)
-```
-
-#### Get AI Topics with Auto-Retry
-
-```python
-response = client.get_ai_topics_wait(
-    url="https://example.com/article",    # Required
-    origin="https://yoursite.com",        # Optional
-    max_retries=10,                       # Optional (default: 10)
-    retry_interval=6,                     # Optional (default: 6s)
-    initial_delay=2                       # Optional (default: 2s)
-)
-```
-
-#### Get AI Topics (Multiple URLs)
-
-```python
-# From list
-results = client.get_ai_topics_list(
-    urls=["https://example.com/1", "https://example.com/2"],
-    origin="https://yoursite.com"
-)
-
-# From file bytes
-with open("urls.txt", "rb") as f:
-    urls_as_bytes = f.read()
-result = client.get_ai_topics_list(urls_as_bytes)
-```
-
-#### Get Similar Articles
-
-```python
-articles = client.get_similar(
-    document_url="https://example.com/article",  # Required
-    max_rows=10,                                 # Optional
-    past_days=30,                                # Optional
-    publication_ids=["pub1", "pub2"],            # Optional
-    origin="https://yoursite.com"                # Optional
-)
-```
-
-### Raw Response Methods
-
-All methods have `_raw` variants that return the raw `requests.Response` object:
-
-```python
-# REST
-raw_response = client.get_ai_topics_raw(content="Text")
-print(raw_response.status_code)
-print(raw_response.text)
-
-# EDGE
-raw_response = client.get_ai_topics_raw(url="https://example.com")
-print(raw_response.json())
 ```
 
 ## Development
