@@ -20,7 +20,6 @@ from neuwo_api.utils import (
     RequestHandler,
     build_form_data,
     build_query_string,
-    handle_api_error,
     parse_json_response,
     parse_xml_response,
     prepare_url_list_file,
@@ -183,45 +182,6 @@ class TestSanitizeContent:
             sanitize_content(None)
 
 
-class TestHandleApiError:
-    """Tests for handle_api_error function."""
-
-    def test_400_error(self):
-        error = handle_api_error(400, {"message": "Bad request"})
-        assert isinstance(error, BadRequestError)
-        assert "Bad request" in str(error)
-
-    def test_401_error(self):
-        error = handle_api_error(401, {"message": "Unauthorized"})
-        assert isinstance(error, AuthenticationError)
-
-    def test_403_error(self):
-        error = handle_api_error(403, {"message": "Forbidden"})
-        assert isinstance(error, ForbiddenError)
-
-    def test_404_error(self):
-        error = handle_api_error(404, {"detail": "Not found"})
-        assert isinstance(error, NotFoundError)
-
-    def test_404_no_data_available(self):
-        error = handle_api_error(404, {"detail": "No data yet available"})
-        assert isinstance(error, NoDataAvailableError)
-
-    def test_422_error(self):
-        error = handle_api_error(422, {"detail": "Validation error"})
-        assert isinstance(error, ValidationError)
-
-    def test_422_with_validation_details(self):
-        details = [{"loc": ["body"], "msg": "required"}]
-        error = handle_api_error(422, {"detail": details})
-        assert isinstance(error, ValidationError)
-        assert error.validation_details == details
-
-    def test_500_error(self):
-        error = handle_api_error(500, {"message": "Server error"})
-        assert error.status_code == 500
-
-
 class TestRequestHandler:
     """Tests for RequestHandler class."""
 
@@ -308,3 +268,43 @@ class TestRequestHandler:
 
         with pytest.raises(NetworkError, match="connect"):
             handler.request("GET", "/test")
+
+    class TestHandleApiError:
+        """Tests for handle_api_error static method."""
+
+        def test_400_error(self):
+            error = RequestHandler.handle_api_error(400, {"message": "Bad request"})
+            assert isinstance(error, BadRequestError)
+            assert "Bad request" in str(error)
+
+        def test_401_error(self):
+            error = RequestHandler.handle_api_error(401, {"message": "Unauthorized"})
+            assert isinstance(error, AuthenticationError)
+
+        def test_403_error(self):
+            error = RequestHandler.handle_api_error(403, {"message": "Forbidden"})
+            assert isinstance(error, ForbiddenError)
+
+        def test_404_error(self):
+            error = RequestHandler.handle_api_error(404, {"detail": "Not found"})
+            assert isinstance(error, NotFoundError)
+
+        def test_404_no_data_available(self):
+            error = RequestHandler.handle_api_error(
+                404, {"detail": "No data yet available"}
+            )
+            assert isinstance(error, NoDataAvailableError)
+
+        def test_422_error(self):
+            error = RequestHandler.handle_api_error(422, {"detail": "Validation error"})
+            assert isinstance(error, ValidationError)
+
+        def test_422_with_validation_details(self):
+            details = [{"loc": ["body"], "msg": "required"}]
+            error = RequestHandler.handle_api_error(422, {"detail": details})
+            assert isinstance(error, ValidationError)
+            assert error.validation_details == details
+
+        def test_500_error(self):
+            error = RequestHandler.handle_api_error(500, {"message": "Server error"})
+            assert error.status_code == 500

@@ -268,49 +268,6 @@ def sanitize_content(content: str) -> str:
     return content
 
 
-def handle_api_error(status_code: int, response_data: Dict[str, Any]) -> NeuwoAPIError:
-    """Create appropriate exception based on status code and response.
-
-    Args:
-        status_code: HTTP status code
-        response_data: Parsed response data
-
-    Returns:
-        Appropriate exception instance
-    """
-
-    # Extract message from response
-    message = (
-        response_data.get("message")
-        or response_data.get("detail")
-        or response_data.get("error")
-        or f"API error with status {status_code}"
-    )
-
-    # Map status codes to exceptions
-    if status_code == 400:
-        return BadRequestError(message, response_data)
-    elif status_code == 401:
-        return AuthenticationError(message, response_data)
-    elif status_code == 403:
-        return ForbiddenError(message, response_data)
-    elif status_code == 404:
-        # Check if this is "No data yet available" error
-        if "no data yet available" in message.lower():
-            return NoDataAvailableError(message)
-        return NotFoundError(message, response_data)
-    elif status_code == 422:
-        # Extract validation details if present
-        validation_details = response_data.get("detail")
-        if isinstance(validation_details, list):
-            return ValidationError(message, response_data, validation_details)
-        return ValidationError(message, response_data)
-    elif status_code >= 500:
-        return ServerError(message, status_code, response_data)
-    else:
-        return NeuwoAPIError(message, status_code, response_data)
-
-
 class RequestHandler:
     """Handles HTTP requests to the Neuwo API.
 
@@ -415,6 +372,51 @@ class RequestHandler:
             self._logger.error(f"Request failed: {e}")
             raise NetworkError(f"Request failed: {e}", e)
 
+    @staticmethod
+    def handle_api_error(
+        status_code: int, response_data: Dict[str, Any]
+    ) -> NeuwoAPIError:
+        """Create appropriate exception based on status code and response.
+
+        Args:
+            status_code: HTTP status code
+            response_data: Parsed response data
+
+        Returns:
+            Appropriate exception instance
+        """
+
+        # Extract message from response
+        message = (
+            response_data.get("message")
+            or response_data.get("detail")
+            or response_data.get("error")
+            or f"API error with status {status_code}"
+        )
+
+        # Map status codes to exceptions
+        if status_code == 400:
+            return BadRequestError(message, response_data)
+        elif status_code == 401:
+            return AuthenticationError(message, response_data)
+        elif status_code == 403:
+            return ForbiddenError(message, response_data)
+        elif status_code == 404:
+            # Check if this is "No data yet available" error
+            if "no data yet available" in message.lower():
+                return NoDataAvailableError(message)
+            return NotFoundError(message, response_data)
+        elif status_code == 422:
+            # Extract validation details if present
+            validation_details = response_data.get("detail")
+            if isinstance(validation_details, list):
+                return ValidationError(message, response_data, validation_details)
+            return ValidationError(message, response_data)
+        elif status_code >= 500:
+            return ServerError(message, status_code, response_data)
+        else:
+            return NeuwoAPIError(message, status_code, response_data)
+
     def _handle_error_response(self, response: "requests.Response"):
         """Handle error responses from the API.
 
@@ -431,5 +433,5 @@ class RequestHandler:
 
         self._logger.error(f"API error {response.status_code}: {error_data}")
 
-        error = handle_api_error(response.status_code, error_data)
+        error = self.handle_api_error(response.status_code, error_data)
         raise error
