@@ -1,8 +1,7 @@
 """
 REST API client for Neuwo API.
 
-This module provides a client for interacting with Neuwo's REST endpoints,
-which are designed for server-side applications requiring secure token handling.
+This module provides a client for analysis where content is provided directly as text.
 """
 
 from datetime import date

@@ -1,8 +1,7 @@
 """
 EDGE API client for Neuwo API.
 
-This module provides a client for interacting with Neuwo's EDGE endpoints,
-which can be called directly from web pages using a "public" token.
+This module provides a client for analysis where content is identified by URL (websites).
 """
 
 import time
