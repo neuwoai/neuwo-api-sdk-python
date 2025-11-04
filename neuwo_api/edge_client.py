@@ -232,29 +232,19 @@ class NeuwoEdgeClient:
             ContentNotAvailableError: If tagging could not be created
             NeuwoAPIError: For other API errors
         """
-
-        # Validate URL first
-        validate_url(url)
-
-        logger.info(f"Requesting AI topics for URL with wait: {url}")
         logger.info(
             f"Will retry up to {max_retries} times with {retry_interval}s interval"
         )
 
         # Initial delay to give the system time to queue the request
         if initial_delay > 0:
-            logger.debug(f"Initial delay of {initial_delay}s before first request")
+            logger.info(f"Initial delay of {initial_delay}s before first request")
             time.sleep(initial_delay)
 
         for attempt in range(max_retries + 1):
             try:
-                # Try to get the data
-                result = self.get_ai_topics(url=url, origin=origin)
-
-                # Success! Data is available
-                logger.info(f"Successfully retrieved data on attempt {attempt + 1}")
-                return result
-
+                logger.info(f"Attempt {attempt + 1}/{max_retries + 1} to get AI topics")
+                return self.get_ai_topics(url=url, origin=origin)
             except NoDataAvailableError:
                 # Handle 404 "No data yet available" error
                 logger.debug(
@@ -273,7 +263,6 @@ class NeuwoEdgeClient:
                     f"Waiting {retry_interval}s before retry {attempt + 2}/{max_retries + 1}..."
                 )
                 time.sleep(retry_interval)
-
             except ContentNotAvailableError as e:
                 # Tagging could not be created - this is a permanent error, don't retry
                 logger.error(f"Content not available: {e}")
