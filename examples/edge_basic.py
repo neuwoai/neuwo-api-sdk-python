@@ -20,7 +20,7 @@ def analyze_single_url():
     print("=" * 60)
 
     client = NeuwoEdgeClient(
-        token=EDGE_TOKEN, base_url=BASE_URL, origin="https://yourwebsite.com"
+        token=EDGE_TOKEN, base_url=BASE_URL, default_origin="https://yourwebsite.com"
     )
 
     # Example URL (replace with actual article URL)
@@ -60,7 +60,7 @@ def analyze_with_origin():
 
     # Initialize with default origin
     client = NeuwoEdgeClient(
-        token=EDGE_TOKEN, base_url=BASE_URL, origin="https://yourwebsite.com"
+        token=EDGE_TOKEN, base_url=BASE_URL, default_origin="https://yourwebsite.com"
     )
 
     url = "https://neuwo.ai/blog/2025/05/13/lets-break-the-rules-you-set-the-cpm/"
@@ -85,7 +85,7 @@ def analyze_multiple_urls():
     print("=" * 60)
 
     client = NeuwoEdgeClient(
-        token=EDGE_TOKEN, base_url=BASE_URL, origin="https://yourwebsite.com"
+        token=EDGE_TOKEN, base_url=BASE_URL, default_origin="https://yourwebsite.com"
     )
 
     urls = [
@@ -118,7 +118,7 @@ def find_similar_by_url():
     print("=" * 60)
 
     client = NeuwoEdgeClient(
-        token=EDGE_TOKEN, base_url=BASE_URL, origin="https://yourwebsite.com"
+        token=EDGE_TOKEN, base_url=BASE_URL, default_origin="https://yourwebsite.com"
     )
 
     url = "https://neuwo.ai/blog/2025/05/13/lets-break-the-rules-you-set-the-cpm/"
@@ -149,7 +149,7 @@ def handle_errors():
     from neuwo_api import ValidationError
 
     client = NeuwoEdgeClient(
-        token=EDGE_TOKEN, base_url=BASE_URL, origin="https://yourwebsite.com"
+        token=EDGE_TOKEN, base_url=BASE_URL, default_origin="https://yourwebsite.com"
     )
 
     # Test 1: Invalid URL

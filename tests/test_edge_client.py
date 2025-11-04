@@ -22,15 +22,15 @@ class TestNeuwoEdgeClientInit:
         assert client.token == "test-token"
         assert client.base_url == "https://custom.api.com"
         assert client.timeout == 60
-        assert client.origin is None
+        assert client.default_origin is None
 
     def test_init_with_origin(self):
         client = NeuwoEdgeClient(
             token="test-token",
             base_url="https://custom.api.com",
-            origin="https://example.com",
+            default_origin="https://example.com",
         )
-        assert client.origin == "https://example.com"
+        assert client.default_origin == "https://example.com"
 
     def test_init_with_custom_base_url(self):
         client = NeuwoEdgeClient(token="test-token", base_url="https://custom.api.com")
@@ -355,7 +355,7 @@ class TestRequestWithOrigin:
         client = NeuwoEdgeClient(
             token="test-token",
             base_url="https://custom.api.com",
-            origin="https://default.com",
+            default_origin="https://default.com",
         )
         client._request("GET", "/test")
 
@@ -371,7 +371,7 @@ class TestRequestWithOrigin:
         client = NeuwoEdgeClient(
             token="test-token",
             base_url="https://custom.api.com",
-            origin="https://default.com",
+            default_origin="https://default.com",
         )
         client._request("GET", "/test", headers={"Origin": "https://override.com"})
 

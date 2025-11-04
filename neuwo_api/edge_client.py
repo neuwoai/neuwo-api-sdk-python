@@ -34,7 +34,7 @@ class NeuwoEdgeClient:
         token: EDGE API authentication token
         base_url: Base URL for the API
         timeout: Request timeout in seconds
-        origin: Default origin header for requests
+        default_origin: Default origin header for requests
     """
 
     DEFAULT_TIMEOUT = 60
@@ -44,7 +44,7 @@ class NeuwoEdgeClient:
         token: str,
         base_url: str,
         timeout: Optional[int] = None,
-        origin: Optional[str] = None,
+        default_origin: Optional[str] = None,
     ):
         """Initialize the EDGE API client.
 
@@ -52,7 +52,7 @@ class NeuwoEdgeClient:
             token: EDGE API authentication token
             base_url: Base URL for the API server
             timeout: Request timeout in seconds (default: 60)
-            origin: Default origin header for requests (e.g., "https://example.com")
+            default_origin: Default origin header for requests (e.g., "https://example.com")
 
         Raises:
             ValueError: If token is empty or invalid
@@ -66,7 +66,7 @@ class NeuwoEdgeClient:
         self.base_url = base_url.rstrip("/")
 
         self.timeout = timeout or self.DEFAULT_TIMEOUT
-        self.origin = origin
+        self.default_origin = default_origin
 
         # Initialize request handler
         self._request_handler = RequestHandler(
@@ -98,11 +98,11 @@ class NeuwoEdgeClient:
             Response object
         """
         # Add origin header if configured
-        if self.origin:
+        if self.default_origin:
             if headers is None:
                 headers = {}
             if "Origin" not in headers:
-                headers["Origin"] = self.origin
+                headers["Origin"] = self.default_origin
 
         return self._request_handler.request(
             method=method,
@@ -145,8 +145,8 @@ class NeuwoEdgeClient:
         headers = {}
         if origin:
             headers["Origin"] = origin
-        elif self.origin:
-            headers["Origin"] = self.origin
+        elif self.default_origin:
+            headers["Origin"] = self.default_origin
 
         logger.info(f"Getting AI topics for URL: {url}")
 
@@ -318,8 +318,8 @@ class NeuwoEdgeClient:
         headers = {}
         if origin:
             headers["Origin"] = origin
-        elif self.origin:
-            headers["Origin"] = self.origin
+        elif self.default_origin:
+            headers["Origin"] = self.default_origin
 
         # Make request
         return self._request(
@@ -432,8 +432,8 @@ class NeuwoEdgeClient:
         headers = {}
         if origin:
             headers["Origin"] = origin
-        elif self.origin:
-            headers["Origin"] = self.origin
+        elif self.default_origin:
+            headers["Origin"] = self.default_origin
 
         logger.info(f"Getting similar articles for URL: {document_url}")
 

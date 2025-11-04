@@ -77,7 +77,7 @@ from neuwo_api import NeuwoEdgeClient
 client = NeuwoEdgeClient(
     token="your-edge-api-token",
     base_url="https://custom.api.com",
-    origin="https://yourwebsite.com"  # Optional: default origin for requests
+    default_origin="https://yourwebsite.com"  # Optional: default origin for requests
 )
 
 # Analyze article by URL
@@ -115,12 +115,12 @@ client = NeuwoRestClient(
 
 ### EDGE Client Parameters
 
-| Parameter  | Type  | Default      | Description                        |
-| ---------- | ----- | ------------ | ---------------------------------- |
-| `token`    | `str` | **Required** | EDGE API authentication token      |
-| `base_url` | `str` | **Required** | Base URL for the API               |
-| `timeout`  | `int` | `60`         | Request timeout in seconds         |
-| `origin`   | `str` | `None`       | Default Origin header for requests |
+| Parameter        | Type  | Default      | Description                        |
+| ---------------- | ----- | ------------ | ---------------------------------- |
+| `token`          | `str` | **Required** | EDGE API authentication token      |
+| `base_url`       | `str` | **Required** | Base URL for the API               |
+| `timeout`        | `int` | `60`         | Request timeout in seconds         |
+| `default_origin` | `str` | `None`       | Default Origin header for requests |
 
 **Example:**
 
@@ -128,7 +128,7 @@ client = NeuwoRestClient(
 client = NeuwoEdgeClient(
     token="your-token",
     base_url="https://custom.api.com",
-    origin="https://yoursite.com",
+    default_origin="https://yoursite.com",
     timeout=90
 )
 ```

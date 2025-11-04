@@ -21,7 +21,7 @@ def get_ai_topics_raw():
     print("=" * 60)
 
     client = NeuwoEdgeClient(
-        token=EDGE_TOKEN, base_url=BASE_URL, origin="https://yourwebsite.com"
+        token=EDGE_TOKEN, base_url=BASE_URL, default_origin="https://yourwebsite.com"
     )
 
     url = "https://neuwo.ai/blog/2025/05/13/lets-break-the-rules-you-set-the-cpm/"
@@ -59,7 +59,7 @@ def get_ai_topics_list_raw():
     print("=" * 60)
 
     client = NeuwoEdgeClient(
-        token=EDGE_TOKEN, base_url=BASE_URL, origin="https://yourwebsite.com"
+        token=EDGE_TOKEN, base_url=BASE_URL, default_origin="https://yourwebsite.com"
     )
 
     urls = [
@@ -102,7 +102,7 @@ def get_similar_raw():
     print("=" * 60)
 
     client = NeuwoEdgeClient(
-        token=EDGE_TOKEN, base_url=BASE_URL, origin="https://yourwebsite.com"
+        token=EDGE_TOKEN, base_url=BASE_URL, default_origin="https://yourwebsite.com"
     )
 
     url = "https://neuwo.ai/blog/2025/05/13/lets-break-the-rules-you-set-the-cpm/"
@@ -136,7 +136,7 @@ def inspect_response_headers():
     print("=" * 60)
 
     client = NeuwoEdgeClient(
-        token=EDGE_TOKEN, base_url=BASE_URL, origin="https://mywebsite.com"
+        token=EDGE_TOKEN, base_url=BASE_URL, default_origin="https://mywebsite.com"
     )
 
     url = "https://neuwo.ai/blog/2025/05/13/lets-break-the-rules-you-set-the-cpm/"
@@ -169,7 +169,7 @@ def handle_404_manually():
     from neuwo_api.exceptions import NoDataAvailableError
 
     client = NeuwoEdgeClient(
-        token=EDGE_TOKEN, base_url=BASE_URL, origin="https://yourwebsite.com"
+        token=EDGE_TOKEN, base_url=BASE_URL, default_origin="https://yourwebsite.com"
     )
 
     # URL that might not be processed yet
@@ -203,7 +203,7 @@ def save_responses_for_debugging():
     print("=" * 60)
 
     client = NeuwoEdgeClient(
-        token=EDGE_TOKEN, base_url=BASE_URL, origin="https://yourwebsite.com"
+        token=EDGE_TOKEN, base_url=BASE_URL, default_origin="https://yourwebsite.com"
     )
 
     urls_to_test = [
@@ -253,7 +253,7 @@ def compare_response_formats():
     print("=" * 60)
 
     client = NeuwoEdgeClient(
-        token=EDGE_TOKEN, base_url=BASE_URL, origin="https://yourwebsite.com"
+        token=EDGE_TOKEN, base_url=BASE_URL, default_origin="https://yourwebsite.com"
     )
 
     url = "https://neuwo.ai/blog/2025/05/13/lets-break-the-rules-you-set-the-cpm/"
