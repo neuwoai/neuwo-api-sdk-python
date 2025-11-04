@@ -358,7 +358,15 @@ class RequestHandler:
 
             # Handle error status codes
             if response.status_code >= 400:
-                self._handle_error_response(response)
+                try:
+                    error_data = response.json()
+                except Exception:
+                    error_data = {"detail": response.text}
+
+                self._logger.error(f"API error {response.status_code}: {error_data}")
+
+                error = self.handle_api_error(response.status_code, error_data)
+                raise error
 
             return response
 
@@ -416,22 +424,3 @@ class RequestHandler:
             return ServerError(message, status_code, response_data)
         else:
             return NeuwoAPIError(message, status_code, response_data)
-
-    def _handle_error_response(self, response: "requests.Response"):
-        """Handle error responses from the API.
-
-        Args:
-            response: Response object with error status
-
-        Raises:
-            Appropriate exception based on status code
-        """
-        try:
-            error_data = response.json()
-        except Exception:
-            error_data = {"detail": response.text}
-
-        self._logger.error(f"API error {response.status_code}: {error_data}")
-
-        error = self.handle_api_error(response.status_code, error_data)
-        raise error
