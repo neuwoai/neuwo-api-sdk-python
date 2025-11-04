@@ -173,6 +173,10 @@ class ServerError(NeuwoAPIError):
 class NetworkError(NeuwoAPIError):
     """Raised when network communication fails.
 
+    This exception uses Python's built-in exception chaining (__cause__)
+    to preserve the original error context. Access the original exception
+    via the __cause__ attribute.
+
     This can occur due to:
     - Connection timeouts
     - DNS resolution failures
@@ -186,16 +190,13 @@ class NetworkError(NeuwoAPIError):
 
         Args:
             message: Error message
-            original_error: The original exception that caused this error
+            original_error: The original exception that caused this error.
+                          This will be set as __cause__ for proper exception chaining.
         """
         super().__init__(message)
-        self.original_error = original_error
-
-    def __str__(self) -> str:
-        """String representation with original error."""
-        if self.original_error:
-            return f"{self.message}: {str(self.original_error)}"
-        return self.message
+        # Use Python's exception chaining mechanism
+        if original_error is not None:
+            self.__cause__ = original_error
 
 
 class ContentNotAvailableError(NeuwoAPIError):
@@ -221,15 +222,16 @@ class ContentNotAvailableError(NeuwoAPIError):
         super().__init__(message)
 
 
-class NoDataAvailableError(NeuwoAPIError):
+class NoDataAvailableError(NotFoundError):
     """Raised when data is not yet available (URL not processed).
 
-    For EDGE endpoints, this means the URL has been queued for processing
-    and results will be available after crawling completes (typically 10-60 seconds).
+    This is a specialized NotFoundError (404) for EDGE endpoints, indicating
+    the URL has been queued for processing and results will be available
+    after crawling completes (typically 10-60 seconds).
     """
 
     def __init__(
         self, message: str = "No data yet available - URL queued for processing"
     ):
         """Initialize NoDataAvailableError."""
-        super().__init__(message, status_code=404)
+        super().__init__(message)

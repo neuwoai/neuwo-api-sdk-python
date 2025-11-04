@@ -133,13 +133,14 @@ class TestNetworkError:
     def test_basic_network_error(self):
         error = NetworkError("Connection failed")
         assert str(error) == "Connection failed"
-        assert error.original_error is None
+        assert error.__cause__ is None
 
     def test_network_error_with_original(self):
         original = Exception("Socket timeout")
         error = NetworkError("Connection failed", original_error=original)
-        assert "Socket timeout" in str(error)
-        assert error.original_error == original
+        assert str(error) == "Connection failed"
+        assert error.__cause__ == original
+        assert error.__cause__.args[0] == "Socket timeout"
 
 
 class TestContentNotAvailableError:
@@ -170,3 +171,8 @@ class TestNoDataAvailableError:
     def test_custom_message(self):
         error = NoDataAvailableError("Still processing")
         assert str(error) == "[404] Still processing"
+
+    def test_inherits_from_not_found_error(self):
+        error = NoDataAvailableError()
+        assert isinstance(error, NotFoundError)
+        assert isinstance(error, NeuwoAPIError)
