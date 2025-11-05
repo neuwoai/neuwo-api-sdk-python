@@ -12,22 +12,17 @@ class NeuwoAPIError(Exception):
     Attributes:
         message: Error message
         status_code: HTTP status code (if applicable)
-        response_data: Raw response data (if available)
     """
 
-    def __init__(
-        self, message: str, status_code: int = None, response_data: dict = None
-    ):
+    def __init__(self, message: str, status_code: int = None):
         """Initialize NeuwoAPIError.
 
         Args:
             message: Error message
             status_code: HTTP status code
-            response_data: Raw response data from API
         """
         self.message = message
         self.status_code = status_code
-        self.response_data = response_data or {}
         super().__init__(self.message)
 
     def __str__(self) -> str:
@@ -43,13 +38,9 @@ class AuthenticationError(NeuwoAPIError):
     This typically means the API token is invalid or missing.
     """
 
-    def __init__(
-        self,
-        message: str = "Unauthorized - Invalid or missing token",
-        response_data: dict = None,
-    ):
+    def __init__(self, message: str = "Unauthorised - Invalid or missing token"):
         """Initialize AuthenticationError."""
-        super().__init__(message, status_code=401, response_data=response_data)
+        super().__init__(message, status_code=401)
 
 
 class ForbiddenError(NeuwoAPIError):
@@ -59,13 +50,9 @@ class ForbiddenError(NeuwoAPIError):
     or the requested resource is restricted.
     """
 
-    def __init__(
-        self,
-        message: str = "Forbidden - Token lacks necessary permissions",
-        response_data: dict = None,
-    ):
+    def __init__(self, message: str = "Forbidden - Token lacks necessary permissions"):
         """Initialize ForbiddenError."""
-        super().__init__(message, status_code=403, response_data=response_data)
+        super().__init__(message, status_code=403)
 
 
 class NotFoundError(NeuwoAPIError):
@@ -75,9 +62,9 @@ class NotFoundError(NeuwoAPIError):
     and has been queued for crawling.
     """
 
-    def __init__(self, message: str = "Resource not found", response_data: dict = None):
+    def __init__(self, message: str = "Not Found - Resource not found"):
         """Initialize NotFoundError."""
-        super().__init__(message, status_code=404, response_data=response_data)
+        super().__init__(message, status_code=404)
 
 
 class ValidationError(NeuwoAPIError):
@@ -92,18 +79,16 @@ class ValidationError(NeuwoAPIError):
 
     def __init__(
         self,
-        message: str = "Validation error",
-        response_data: dict = None,
+        message: str = "Validation Error - Request validation failed",
         validation_details: list = None,
     ):
         """Initialize ValidationError.
 
         Args:
             message: Error message
-            response_data: Raw response data
             validation_details: List of validation error details
         """
-        super().__init__(message, status_code=422, response_data=response_data)
+        super().__init__(message, status_code=422)
         self.validation_details = validation_details or []
 
     def __str__(self) -> str:
@@ -126,9 +111,9 @@ class BadRequestError(NeuwoAPIError):
     This typically means required parameters are missing or invalid.
     """
 
-    def __init__(self, message: str = "Bad request", response_data: dict = None):
+    def __init__(self, message: str = "Bad Request - Malformed request"):
         """Initialize BadRequestError."""
-        super().__init__(message, status_code=400, response_data=response_data)
+        super().__init__(message, status_code=400)
 
 
 class RateLimitError(NeuwoAPIError):
@@ -139,18 +124,16 @@ class RateLimitError(NeuwoAPIError):
 
     def __init__(
         self,
-        message: str = "Rate limit exceeded",
-        response_data: dict = None,
+        message: str = "Rate Limit Exceeded - Too many requests",
         retry_after: int = None,
     ):
         """Initialize RateLimitError.
 
         Args:
             message: Error message
-            response_data: Raw response data
             retry_after: Seconds to wait before retrying (if provided by API)
         """
-        super().__init__(message, status_code=429, response_data=response_data)
+        super().__init__(message, status_code=429)
         self.retry_after = retry_after
 
 
@@ -162,12 +145,11 @@ class ServerError(NeuwoAPIError):
 
     def __init__(
         self,
-        message: str = "Server error",
+        message: str = "Server Error - Internal server error",
         status_code: int = 500,
-        response_data: dict = None,
     ):
         """Initialize ServerError."""
-        super().__init__(message, status_code=status_code, response_data=response_data)
+        super().__init__(message, status_code=status_code)
 
 
 class NetworkError(NeuwoAPIError):
@@ -184,7 +166,7 @@ class NetworkError(NeuwoAPIError):
     """
 
     def __init__(
-        self, message: str = "Network error occurred", original_error: Exception = None
+        self, message: str = "Network Error - Failed to communicate with server", original_error: Exception = None
     ):
         """Initialize NetworkError.
 
@@ -207,19 +189,16 @@ class ContentNotAvailableError(NeuwoAPIError):
     - Edge processing couldn't find content to analyze
     """
 
-    def __init__(self, url: str = None, message: str = None):
+    def __init__(self, message: str = "Content Not Available - Tagging could not be created", 
+                 url: str = None):
         """Initialize ContentNotAvailableError.
 
         Args:
-            url: The URL that couldn't be processed
             message: Custom error message
+            url: The URL that couldn't be processed
         """
-        self.url = url
-        if message is None and url:
-            message = f"Tagging not created for URL {url}. Page may be unavailable or content couldn't be analyzed."
-        elif message is None:
-            message = "Content could not be analyzed"
         super().__init__(message)
+        self.url = url
 
 
 class NoDataAvailableError(NotFoundError):

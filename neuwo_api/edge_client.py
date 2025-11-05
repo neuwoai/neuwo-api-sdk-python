@@ -366,7 +366,7 @@ class NeuwoEdgeClient:
                 url = item.get("url")
                 logger.warning(f"Error for URL {url}: {error_message}")
                 # Raise exception for the first error encountered
-                raise ContentNotAvailableError(url=url, message=error_message)
+                raise ContentNotAvailableError(message=error_message, url=url)
 
             results.append(GetAiTopicsResponse.from_dict(item))
 

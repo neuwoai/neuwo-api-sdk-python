@@ -25,17 +25,11 @@ class TestNeuwoAPIError:
         assert str(error) == "Test error"
         assert error.message == "Test error"
         assert error.status_code is None
-        assert error.response_data == {}
 
     def test_error_with_status_code(self):
         error = NeuwoAPIError("Test error", status_code=400)
         assert str(error) == "[400] Test error"
         assert error.status_code == 400
-
-    def test_error_with_response_data(self):
-        response_data = {"detail": "Additional info"}
-        error = NeuwoAPIError("Test error", response_data=response_data)
-        assert error.response_data == response_data
 
 
 class TestAuthenticationError:
@@ -43,7 +37,7 @@ class TestAuthenticationError:
 
     def test_default_message(self):
         error = AuthenticationError()
-        assert "Unauthorized" in str(error)
+        assert "Unauthorised" in str(error)
         assert error.status_code == 401
 
     def test_custom_message(self):
@@ -106,7 +100,7 @@ class TestRateLimitError:
 
     def test_default_message(self):
         error = RateLimitError()
-        assert "Rate limit" in str(error)
+        assert "Rate Limit" in str(error)
         assert error.status_code == 429
         assert error.retry_after is None
 
@@ -148,11 +142,16 @@ class TestContentNotAvailableError:
 
     def test_default_message(self):
         error = ContentNotAvailableError()
-        assert "could not be analyzed" in str(error).lower()
+        assert "content not available" in str(error).lower()
 
     def test_with_url(self):
         error = ContentNotAvailableError(url="https://example.com")
-        assert "https://example.com" in str(error)
+        assert "content not available" in str(error).lower()
+        assert error.url == "https://example.com"
+
+    def test_with_url_and_message(self):
+        error = ContentNotAvailableError(message="Custom error", url="https://example.com")
+        assert str(error) == "Custom error"
         assert error.url == "https://example.com"
 
     def test_with_custom_message(self):

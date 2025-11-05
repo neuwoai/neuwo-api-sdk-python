@@ -8,7 +8,7 @@ response parsing, and other common operations.
 import json
 import xml.etree.ElementTree as ET
 from typing import Any, Dict, List, Optional
-from urllib.parse import quote, urlparse
+from urllib.parse import ParseResult, quote, urlencode, urlparse, urlunparse
 
 import requests
 
@@ -21,6 +21,7 @@ from .exceptions import (
     NeuwoAPIError,
     NoDataAvailableError,
     NotFoundError,
+    RateLimitError,
     ServerError,
     ValidationError,
 )
@@ -85,7 +86,7 @@ def parse_json_response(response_text: str) -> Dict[str, Any]:
             url = data.get("url")
 
             logger.error(f"API returned error in response body: {error_message}")
-            raise ContentNotAvailableError(url=url, message=error_message)
+            raise ContentNotAvailableError(message=error_message, url=url)
 
         return data
     except json.JSONDecodeError as e:
@@ -157,71 +158,6 @@ def _xml_element_to_dict(element: ET.Element) -> Dict[str, Any]:
     return result
 
 
-def build_query_string(params: Dict[str, Any]) -> str:
-    """Build a URL query string from parameters.
-
-    Handles multiple values for the same parameter name.
-
-    Args:
-        params: Dictionary of query parameters
-
-    Returns:
-        URL-encoded query string
-    """
-
-    # Filter out None values
-    filtered_params = {}
-    for key, value in params.items():
-        if value is not None:
-            # Handle lists (for parameters that can be repeated)
-            if isinstance(value, list):
-                filtered_params[key] = value
-            else:
-                filtered_params[key] = value
-
-    # Build query string
-    parts = []
-    for key, value in filtered_params.items():
-        if isinstance(value, list):
-            # Repeat parameter for each value
-            for item in value:
-                parts.append(f"{quote(str(key))}={quote(str(item))}")
-        else:
-            parts.append(f"{quote(str(key))}={quote(str(value))}")
-
-    return "&".join(parts)
-
-
-def build_form_data(data: Dict[str, Any]) -> str:
-    """Build URL-encoded form data from dictionary.
-
-    Handles lists by repeating the parameter name for each value.
-    For example: {'tags': ['a', 'b']} becomes 'tags=a&tags=b'
-
-    Args:
-        data: Dictionary of form fields
-
-    Returns:
-        URL-encoded form data string
-    """
-
-    # Filter out None values
-    filtered_data = {k: v for k, v in data.items() if v is not None}
-
-    # Build form data parts
-    parts = []
-    for key, value in filtered_data.items():
-        if isinstance(value, list):
-            # Repeat parameter for each value in list
-            for item in value:
-                parts.append(f"{quote(str(key))}={quote(str(item))}")
-        elif isinstance(value, bool):
-            # Convert boolean to lowercase string
-            parts.append(f"{quote(str(key))}={quote(str(value).lower())}")
-        else:
-            parts.append(f"{quote(str(key))}={quote(str(value))}")
-
-    return "&".join(parts)
 
 
 def prepare_url_list_file(urls: List[str]) -> bytes:
@@ -294,6 +230,101 @@ class RequestHandler:
         self.timeout = timeout
         self._logger = get_logger(__name__)
 
+    @staticmethod
+    def _encode_value(value: Any) -> str:
+        """Encode a value for form data.
+
+        Args:
+            value: Value to encode (string, number, boolean, etc.)
+
+        Returns:
+            String representation of the value
+        """
+        if isinstance(value, bool):
+            return str(value).lower()
+        return str(value)
+
+    def encode_form_data(self, data: Dict[str, Any]) -> str:
+        """Encode data as application/x-www-form-urlencoded.
+
+        Handles lists by repeating the parameter name for each value.
+        For example: {'tags': ['a', 'b']} becomes 'tags=a&tags=b'
+
+        Args:
+            data: Dictionary of form fields
+
+        Returns:
+            URL-encoded form data string
+        """
+        pairs = []
+
+        for key, value in data.items():
+            if value is not None:
+                if isinstance(value, list):
+                    # Repeat parameter for each value in list
+                    for item in value:
+                        if item is not None:
+                            pairs.append((key, self._encode_value(item)))
+                else:
+                    pairs.append((key, self._encode_value(value)))
+
+        return urlencode(pairs, doseq=False)
+
+    def _build_url(self, endpoint: str, params: Optional[Dict[str, Any]] = None) -> str:
+        """Build full URL with query parameters including token.
+
+        Args:
+            endpoint: API endpoint path
+            params: Optional query parameters to append
+
+        Returns:
+            Complete URL string with token and parameters
+        """
+
+        # Parse base URL
+        parsed_base = urlparse(self.base_url)
+
+        # Combine base URL with endpoint
+        # Ensure endpoint starts with / for proper path joining
+        if not endpoint.startswith("/"):
+            endpoint = f"/{endpoint}"
+
+        # Create full path
+        full_path = f"{parsed_base.path}{endpoint}".rstrip("/")
+        if not full_path:
+            full_path = "/"
+
+        # Build query parameters
+        query_params = []
+
+        # Always add token as query parameter
+        query_params.append(f"token={quote(self.token)}")
+
+        # Add additional parameters
+        if params:
+            for key, value in params.items():
+                if value is not None:
+                    if isinstance(value, list):
+                        # For arrays, repeat the parameter name
+                        for item in value:
+                            query_params.append(f"{quote(str(key))}={quote(str(item))}")
+                    else:
+                        query_params.append(f"{quote(str(key))}={quote(str(value))}")
+
+        query_string = "&".join(query_params)
+
+        # Reconstruct URL
+        url_parts = ParseResult(
+            scheme=parsed_base.scheme,
+            netloc=parsed_base.netloc,
+            path=full_path,
+            params="",
+            query=query_string,
+            fragment="",
+        )
+
+        return urlunparse(url_parts)
+
     def request(
         self,
         method: str,
@@ -317,37 +348,28 @@ class RequestHandler:
             Response object
 
         Raises:
-            NetworkError: If network request fails
-            NeuwoAPIError: If API returns an error
+            NetworkError: On network failure or timeout
+            NeuwoAPIError: On API error responses
         """
-
-        url = f"{self.base_url}{endpoint}"
-
-        # Add token to params
-        if params is None:
-            params = {}
-        params["token"] = self.token
+        # Build full URL with query parameters and token
+        url = self._build_url(endpoint, params)
 
         # Prepare headers
         request_headers = headers or {}
 
-        # Prepare form data
+        # Prepare request body
         encoded_data = None
         if data is not None and files is None:
             if "Content-Type" not in request_headers:
                 request_headers["Content-Type"] = "application/x-www-form-urlencoded"
-            encoded_data = build_form_data(data)
+            encoded_data = self.encode_form_data(data)
 
         self._logger.debug(f"Making {method} request to {url}")
-        self._logger.debug(f"Query params: {params}")
-        if data:
-            self._logger.debug(f"Form data keys: {list(data.keys())}")
 
         try:
             response = requests.request(
                 method=method,
                 url=url,
-                params=params,
                 data=encoded_data if files is None else data,
                 files=files,
                 headers=request_headers,
@@ -358,15 +380,7 @@ class RequestHandler:
 
             # Handle error status codes
             if response.status_code >= 400:
-                try:
-                    error_data = response.json()
-                except Exception:
-                    error_data = {"detail": response.text}
-
-                self._logger.error(f"API error {response.status_code}: {error_data}")
-
-                error = self.handle_api_error(response.status_code, error_data)
-                raise error
+                raise self.handle_api_error(response)
 
             return response
 
@@ -381,46 +395,101 @@ class RequestHandler:
             raise NetworkError(f"Request failed: {e}", e)
 
     @staticmethod
-    def handle_api_error(
-        status_code: int, response_data: Dict[str, Any]
-    ) -> NeuwoAPIError:
-        """Create appropriate exception based on status code and response.
+    def handle_api_error(response: requests.Response) -> NeuwoAPIError:
+        """Handle API error responses by parsing and creating appropriate exceptions.
+
+        Parses the error response, extracts relevant error information, and maps
+        HTTP status codes to specific exception types for better error handling.
 
         Args:
-            status_code: HTTP status code
-            response_data: Parsed response data
+            response: HTTP response object with status code >= 400
 
         Returns:
-            Appropriate exception instance
+            Appropriate exception instance based on the status code and error content
         """
+        status_code = response.status_code
+        response_text = response.text
+
+        # Try to parse response as JSON
+        try:
+            error_data = response.json()
+        except Exception:
+            error_data = {}
+            logger.debug("Could not parse error response as JSON")
+            # Store raw response text as detail for non-JSON responses
+            if response_text and len(response_text) < 500:
+                detail = response_text
+
+        logger.error(
+            f"API error {status_code}: {error_data if error_data else response_text[:500]}"
+        )
 
         # Extract message from response
-        message = (
-            response_data.get("message")
-            or response_data.get("detail")
-            or response_data.get("error")
-            or f"API error with status {status_code}"
-        )
+        message = None
+        detail = None
+
+        if isinstance(error_data, dict):
+            message = (
+                error_data.get("message")
+                or error_data.get("detail")
+                or error_data.get("error")
+            )
+
+            # Store detail separately if it's not used as message
+            if "detail" in error_data and message != error_data["detail"]:
+                detail = error_data["detail"]
+
+        # Fallback to response text if no message found
+        if not message:
+            if response_text and len(response_text) < 500:
+                message = response_text
+            else:
+                message = f"API error with status {status_code}"
+
+        # Merge detail into message if detail contains additional information
+        if detail and not isinstance(detail, list):
+            # Only merge if detail is a string and different from message
+            if isinstance(detail, str) and detail != message:
+                message = f"{message}: {detail}"
+            elif isinstance(detail, dict):
+                # For dict details, include them in the message
+                message = f"{message}: {detail}"
 
         # Map status codes to exceptions
         if status_code == 400:
-            return BadRequestError(message, response_data)
+            return BadRequestError(message)
         elif status_code == 401:
-            return AuthenticationError(message, response_data)
+            return AuthenticationError(message)
         elif status_code == 403:
-            return ForbiddenError(message, response_data)
+            return ForbiddenError(message)
         elif status_code == 404:
             # Check if this is "No data yet available" error
             if "no data yet available" in message.lower():
                 return NoDataAvailableError(message)
-            return NotFoundError(message, response_data)
+            return NotFoundError(message)
         elif status_code == 422:
             # Extract validation details if present
-            validation_details = response_data.get("detail")
-            if isinstance(validation_details, list):
-                return ValidationError(message, response_data, validation_details)
-            return ValidationError(message, response_data)
+            validation_details = None
+            if isinstance(detail, list):
+                validation_details = detail
+            elif isinstance(error_data.get("detail"), list):
+                validation_details = error_data["detail"]
+
+            if validation_details:
+                return ValidationError(message, validation_details)
+            return ValidationError(message)
+        elif status_code == 429:
+            # Extract retry_after from headers if present
+            retry_after = None
+            if hasattr(response, "headers") and "Retry-After" in response.headers:
+                try:
+                    retry_after = int(response.headers["Retry-After"])
+                except (ValueError, TypeError):
+                    logger.debug(
+                        f"Could not parse Retry-After header: {response.headers['Retry-After']}"
+                    )
+            return RateLimitError(message, retry_after)
         elif status_code >= 500:
-            return ServerError(message, status_code, response_data)
+            return ServerError(message, status_code)
         else:
-            return NeuwoAPIError(message, status_code, response_data)
+            return NeuwoAPIError(message, status_code)
