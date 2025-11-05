@@ -20,7 +20,7 @@ def mock_response():
 
 @pytest.fixture
 def sample_tag_data():
-    """Sample tag data for testing."""
+    """Sample tag data for testing (uppercase variant)."""
     return {
         "URI": "https://tags.neuwo.ai/masterID101332",
         "value": "Domestic Animals and Pets",
@@ -45,11 +45,55 @@ def sample_tag_data():
 
 
 @pytest.fixture
+def sample_tag_data_lowercase():
+    """Sample tag data for testing (lowercase variant)."""
+    return {
+        "uri": "https://tags.neuwo.ai/masterID101332",
+        "value": "Domestic Animals and Pets",
+        "score": "0.79728",
+        "parents": [
+            [
+                {
+                    "Level_2": {
+                        "value": "Pets & Domestic Animals",
+                        "uri": "https://tags.neuwo.ai/hierarchyID5-6"
+                    }
+                },
+                {
+                    "Level_1": {
+                        "value": "Free time",
+                        "uri": "https://tags.neuwo.ai/hierarchyID12"
+                    }
+                }
+            ]
+        ]
+    }
+
+
+@pytest.fixture
 def sample_brand_safety_data():
-    """Sample brand safety data for testing."""
+    """Sample brand safety data for testing (uppercase variant)."""
     return {
         "BS_score": "1.0",
         "BS_indication": "yes"
+    }
+
+
+@pytest.fixture
+def sample_brand_safety_data_lowercase():
+    """Sample brand safety data for testing (lowercase variant with boolean)."""
+    return {
+        "score": "1.0",
+        "indication": True
+    }
+
+
+@pytest.fixture
+def sample_brand_safety_data_lowercase_string():
+    """Sample brand safety data for testing (lowercase variant with string)."""
+    return {
+        "score": "0.3",
+        "indication": "no"
     }
 
 

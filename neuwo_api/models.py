@@ -41,16 +41,25 @@ class TagParent:
     def from_dict(cls, data: Dict[str, Any]) -> "TagParent":
         """Create a TagParent instance from a dictionary.
 
-        Expected format: {"Level_1": {"value": "...", "URI": "..."}}
+        Supports both variants:
+        - Uppercase: {"Level_1": {"value": "...", "URI": "..."}}
+        - Lowercase: {"Level_1": {"value": "...", "uri": "..."}}
 
         Args:
             data: Dictionary containing parent tag data
 
         Returns:
             TagParent instance
+
+        Raises:
+            ValueError: If neither URI nor uri field is present
         """
         [(level, level_data)] = data.items()
-        return cls(level=level, value=level_data["value"], uri=level_data["URI"])
+        # Handle both uppercase URI and lowercase uri
+        uri_value = level_data.get("URI") or level_data.get("uri")
+        if not uri_value:
+            raise ValueError("TagParent data must contain either 'URI' or 'uri' field")
+        return cls(level=level, value=level_data["value"], uri=uri_value)
 
     def to_dict(self) -> Dict[str, Dict[str, str]]:
         """Convert TagParent to dictionary."""
@@ -77,18 +86,30 @@ class Tag:
     def from_dict(cls, data: Dict[str, Any]) -> "Tag":
         """Create a Tag instance from a dictionary.
 
+        Supports both variants:
+        - Uppercase: URI field
+        - Lowercase: uri field
+
         Args:
             data: Dictionary containing tag data
 
         Returns:
             Tag instance
+
+        Raises:
+            ValueError: If neither URI nor uri field is present
         """
+        # Handle both uppercase URI and lowercase uri
+        uri_value = data.get("URI") or data.get("uri")
+        if not uri_value:
+            raise ValueError("Tag data must contain either 'URI' or 'uri' field")
+
         parents = []
         if "parents" in data and data["parents"]:
             for group in data["parents"]:
                 parents.append([TagParent.from_dict(p) for p in group])
         return cls(
-            uri=data["URI"],
+            uri=uri_value,
             value=data["value"],
             score=float(data["score"]),
             parents=parents,
@@ -121,20 +142,46 @@ class BrandSafetyTag:
     def from_dict(cls, data: Dict[str, Any]) -> "BrandSafetyTag":
         """Create a BrandSafetyTag instance from a dictionary.
 
+        Supports both variants:
+        - Uppercase: BS_score (string) and BS_indication (string: "yes"/"no")
+        - Lowercase: score (string) and indication (boolean)
+
         Args:
             data: Dictionary containing brand safety data
 
         Returns:
             BrandSafetyTag instance
+
+        Raises:
+            ValueError: If neither variant's required fields are present
         """
-        return cls(
-            score=float(data["BS_score"]),
-            indication=BrandSafetyIndication.from_string(data["BS_indication"]),
-        )
+        # Try uppercase variant first (BS_score, BS_indication)
+        if "BS_score" in data and "BS_indication" in data:
+            return cls(
+                score=float(data["BS_score"]),
+                indication=BrandSafetyIndication.from_string(data["BS_indication"]),
+            )
+        # Try lowercase variant (score, indication)
+        elif "score" in data and "indication" in data:
+            score_value = float(data["score"])
+            indication_value = data["indication"]
+
+            # Handle boolean indication
+            if isinstance(indication_value, bool):
+                indication = BrandSafetyIndication.YES if indication_value else BrandSafetyIndication.NO
+            else:
+                # Handle string indication
+                indication = BrandSafetyIndication.from_string(str(indication_value))
+
+            return cls(score=score_value, indication=indication)
+        else:
+            raise ValueError(
+                "BrandSafetyTag data must contain either (BS_score, BS_indication) or (score, indication) fields"
+            )
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert BrandSafetyTag to dictionary."""
-        return {"BS_score": str(self.score), "BS_indication": self.indication.value}
+        return {"score": str(self.score), "indication": self.indication.value}
 
     @property
     def is_safe(self) -> bool:

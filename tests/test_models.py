@@ -20,7 +20,7 @@ from neuwo_api.models import (
 
 class TestTagParent:
     """Tests for TagParent model."""
-    
+
     def test_from_dict(self):
         data = {
             "Level_1": {
@@ -32,7 +32,31 @@ class TestTagParent:
         assert parent.level == "Level_1"
         assert parent.value == "Technology"
         assert parent.uri == "https://tags.neuwo.ai/hierarchyID10"
-    
+
+    def test_from_dict_lowercase_variant(self):
+        """Test parsing lowercase variant (uri field)."""
+        data = {
+            "Level_1": {
+                "value": "Technology",
+                "uri": "https://tags.neuwo.ai/hierarchyID10"
+            }
+        }
+        parent = TagParent.from_dict(data)
+        assert parent.level == "Level_1"
+        assert parent.value == "Technology"
+        assert parent.uri == "https://tags.neuwo.ai/hierarchyID10"
+
+    def test_from_dict_missing_uri_field(self):
+        """Test that ValueError is raised when neither URI nor uri is present."""
+        import pytest
+        data = {
+            "Level_1": {
+                "value": "Technology"
+            }
+        }
+        with pytest.raises(ValueError, match="must contain either 'URI' or 'uri'"):
+            TagParent.from_dict(data)
+
     def test_to_dict(self):
         parent = TagParent(
             level="Level_1",
@@ -50,7 +74,7 @@ class TestTagParent:
 
 class TestTag:
     """Tests for Tag model."""
-    
+
     def test_from_dict_without_parents(self):
         data = {
             "URI": "https://tags.neuwo.ai/masterID101332",
@@ -62,7 +86,7 @@ class TestTag:
         assert tag.value == "Domestic Animals and Pets"
         assert tag.score == 0.79728
         assert tag.parents == []
-    
+
     def test_from_dict_with_parents(self, sample_tag_data):
         tag = Tag.from_dict(sample_tag_data)
         assert tag.uri == "https://tags.neuwo.ai/masterID101332"
@@ -70,7 +94,42 @@ class TestTag:
         assert len(tag.parents) == 1
         assert len(tag.parents[0]) == 2
         assert tag.parents[0][0].level == "Level_2"
-    
+
+    def test_from_dict_lowercase_variant(self, sample_tag_data_lowercase):
+        """Test parsing lowercase variant (uri field)."""
+        tag = Tag.from_dict(sample_tag_data_lowercase)
+        assert tag.uri == "https://tags.neuwo.ai/masterID101332"
+        assert tag.value == "Domestic Animals and Pets"
+        assert tag.score == 0.79728
+        assert len(tag.parents) == 1
+        assert len(tag.parents[0]) == 2
+        # Verify parents are also parsed correctly with lowercase uri
+        assert tag.parents[0][0].level == "Level_2"
+        assert tag.parents[0][0].uri == "https://tags.neuwo.ai/hierarchyID5-6"
+
+    def test_from_dict_lowercase_variant_without_parents(self):
+        """Test parsing lowercase variant without parents."""
+        data = {
+            "uri": "https://tags.neuwo.ai/masterID101332",
+            "value": "Domestic Animals and Pets",
+            "score": "0.79728"
+        }
+        tag = Tag.from_dict(data)
+        assert tag.uri == "https://tags.neuwo.ai/masterID101332"
+        assert tag.value == "Domestic Animals and Pets"
+        assert tag.score == 0.79728
+        assert tag.parents == []
+
+    def test_from_dict_missing_uri_field(self):
+        """Test that ValueError is raised when neither URI nor uri is present."""
+        import pytest
+        data = {
+            "value": "Domestic Animals and Pets",
+            "score": "0.79728"
+        }
+        with pytest.raises(ValueError, match="must contain either 'URI' or 'uri'"):
+            Tag.from_dict(data)
+
     def test_to_dict(self):
         tag = Tag(
             uri="https://tags.neuwo.ai/masterID101332",
@@ -85,24 +144,58 @@ class TestTag:
 
 class TestBrandSafetyTag:
     """Tests for BrandSafetyTag model."""
-    
+
     def test_from_dict(self, sample_brand_safety_data):
         bs = BrandSafetyTag.from_dict(sample_brand_safety_data)
         assert bs.score == 1.0
         assert bs.indication == BrandSafetyIndication.YES
-    
+
+    def test_from_dict_lowercase_variant_boolean(self, sample_brand_safety_data_lowercase):
+        """Test parsing lowercase variant with boolean indication."""
+        bs = BrandSafetyTag.from_dict(sample_brand_safety_data_lowercase)
+        assert bs.score == 1.0
+        assert bs.indication == BrandSafetyIndication.YES
+        assert bs.is_safe is True
+
+    def test_from_dict_lowercase_variant_string(self, sample_brand_safety_data_lowercase_string):
+        """Test parsing lowercase variant with string indication."""
+        bs = BrandSafetyTag.from_dict(sample_brand_safety_data_lowercase_string)
+        assert bs.score == 0.3
+        assert bs.indication == BrandSafetyIndication.NO
+        assert bs.is_safe is False
+
+    def test_from_dict_lowercase_variant_boolean_false(self):
+        """Test parsing lowercase variant with boolean False."""
+        data = {
+            "score": "0.3",
+            "indication": False
+        }
+        bs = BrandSafetyTag.from_dict(data)
+        assert bs.score == 0.3
+        assert bs.indication == BrandSafetyIndication.NO
+        assert bs.is_safe is False
+
+    def test_from_dict_missing_fields(self):
+        """Test that ValueError is raised when required fields are missing."""
+        import pytest
+        data = {
+            "score": "1.0"
+        }
+        with pytest.raises(ValueError, match="must contain either"):
+            BrandSafetyTag.from_dict(data)
+
     def test_is_safe_property(self):
         bs = BrandSafetyTag(score=1.0, indication=BrandSafetyIndication.YES)
         assert bs.is_safe is True
-        
+
         bs_unsafe = BrandSafetyTag(score=0.3, indication=BrandSafetyIndication.NO)
         assert bs_unsafe.is_safe is False
-    
+
     def test_to_dict(self):
         bs = BrandSafetyTag(score=1.0, indication=BrandSafetyIndication.YES)
         data = bs.to_dict()
-        assert data["BS_score"] == "1.0"
-        assert data["BS_indication"] == "yes"
+        assert data["score"] == "1.0"
+        assert data["indication"] == "yes"
 
 
 class TestTaxonomyArticle:
