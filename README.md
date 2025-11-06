@@ -274,7 +274,7 @@ from neuwo_api import (
 )
 
 client = NeuwoRestClient(
-    token="your-token"
+    token="your-token",
     base_url="https://custom.api.com",
 )
 
