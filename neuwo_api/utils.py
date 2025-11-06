@@ -166,46 +166,6 @@ class RequestHandler:
         self.timeout = timeout
         self._logger = get_logger(__name__)
 
-    @staticmethod
-    def _encode_value(value: Any) -> str:
-        """Encode a value for form data.
-
-        Args:
-            value: Value to encode (string, number, boolean, etc.)
-
-        Returns:
-            String representation of the value
-        """
-        if isinstance(value, bool):
-            return str(value).lower()
-        return str(value)
-
-    def encode_form_data(self, data: Dict[str, Any]) -> str:
-        """Encode data as application/x-www-form-urlencoded.
-
-        Handles lists by repeating the parameter name for each value.
-        For example: {'tags': ['a', 'b']} becomes 'tags=a&tags=b'
-
-        Args:
-            data: Dictionary of form fields
-
-        Returns:
-            URL-encoded form data string
-        """
-        pairs = []
-
-        for key, value in data.items():
-            if value is not None:
-                if isinstance(value, list):
-                    # Repeat parameter for each value in list
-                    for item in value:
-                        if item is not None:
-                            pairs.append((key, self._encode_value(item)))
-                else:
-                    pairs.append((key, self._encode_value(value)))
-
-        return urlencode(pairs, doseq=False)
-
     def _build_url(self, endpoint: str, params: Optional[Dict[str, Any]] = None) -> str:
         """Build full URL with query parameters including token.
 
@@ -261,74 +221,45 @@ class RequestHandler:
 
         return urlunparse(url_parts)
 
-    def request(
-        self,
-        method: str,
-        endpoint: str,
-        params: Optional[Dict[str, Any]] = None,
-        data: Optional[Dict[str, Any]] = None,
-        headers: Optional[Dict[str, str]] = None,
-        files: Optional[Dict[str, Any]] = None,
-    ) -> requests.Response:
-        """Make an HTTP request to the API.
+    @staticmethod
+    def _encode_value(value: Any) -> str:
+        """Encode a value for form data.
 
         Args:
-            method: HTTP method (GET, POST, PUT)
-            endpoint: API endpoint path
-            params: Query parameters
-            data: Form data for POST/PUT requests
-            headers: Additional HTTP headers
-            files: Files to upload (for multipart/form-data)
+            value: Value to encode (string, number, boolean, etc.)
 
         Returns:
-            Response object
-
-        Raises:
-            NetworkError: On network failure or timeout
-            NeuwoAPIError: On API error responses
+            String representation of the value
         """
-        # Build full URL with query parameters and token
-        url = self._build_url(endpoint, params)
+        if isinstance(value, bool):
+            return str(value).lower()
+        return str(value)
 
-        # Prepare headers
-        request_headers = headers or {}
+    def encode_form_data(self, data: Dict[str, Any]) -> str:
+        """Encode data as application/x-www-form-urlencoded.
 
-        # Prepare request body
-        encoded_data = None
-        if data is not None and files is None:
-            if "Content-Type" not in request_headers:
-                request_headers["Content-Type"] = "application/x-www-form-urlencoded"
-            encoded_data = self.encode_form_data(data)
+        Handles lists by repeating the parameter name for each value.
+        For example: {'tags': ['a', 'b']} becomes 'tags=a&tags=b'
 
-        self._logger.debug(f"Making {method} request to {url}")
+        Args:
+            data: Dictionary of form fields
 
-        try:
-            response = requests.request(
-                method=method,
-                url=url,
-                data=encoded_data if files is None else data,
-                files=files,
-                headers=request_headers,
-                timeout=self.timeout,
-            )
+        Returns:
+            URL-encoded form data string
+        """
+        pairs = []
 
-            self._logger.debug(f"Response status: {response.status_code}")
+        for key, value in data.items():
+            if value is not None:
+                if isinstance(value, list):
+                    # Repeat parameter for each value in list
+                    for item in value:
+                        if item is not None:
+                            pairs.append((key, self._encode_value(item)))
+                else:
+                    pairs.append((key, self._encode_value(value)))
 
-            # Handle error status codes
-            if response.status_code >= 400:
-                raise self.handle_api_error(response)
-
-            return response
-
-        except requests.exceptions.Timeout as e:
-            self._logger.error(f"Request timeout after {self.timeout} seconds")
-            raise NetworkError(f"Request timeout after {self.timeout} seconds", e)
-        except requests.exceptions.ConnectionError as e:
-            self._logger.error(f"Connection error: {e}")
-            raise NetworkError("Failed to connect to API server", e)
-        except requests.exceptions.RequestException as e:
-            self._logger.error(f"Request failed: {e}")
-            raise NetworkError(f"Request failed: {e}", e)
+        return urlencode(pairs, doseq=False)
 
     @staticmethod
     def handle_api_error(response: requests.Response) -> NeuwoAPIError:
@@ -429,3 +360,72 @@ class RequestHandler:
             return ServerError(message, status_code)
         else:
             return NeuwoAPIError(message, status_code)
+
+    def request(
+        self,
+        method: str,
+        endpoint: str,
+        params: Optional[Dict[str, Any]] = None,
+        data: Optional[Dict[str, Any]] = None,
+        headers: Optional[Dict[str, str]] = None,
+        files: Optional[Dict[str, Any]] = None,
+    ) -> requests.Response:
+        """Make an HTTP request to the API.
+
+        Args:
+            method: HTTP method (GET, POST, PUT)
+            endpoint: API endpoint path
+            params: Query parameters
+            data: Form data for POST/PUT requests
+            headers: Additional HTTP headers
+            files: Files to upload (for multipart/form-data)
+
+        Returns:
+            Response object
+
+        Raises:
+            NetworkError: On network failure or timeout
+            NeuwoAPIError: On API error responses
+        """
+        # Build full URL with query parameters and token
+        url = self._build_url(endpoint, params)
+
+        # Prepare headers
+        request_headers = headers or {}
+
+        # Prepare request body
+        encoded_data = None
+        if data is not None and files is None:
+            if "Content-Type" not in request_headers:
+                request_headers["Content-Type"] = "application/x-www-form-urlencoded"
+            encoded_data = self.encode_form_data(data)
+
+        self._logger.debug(f"Making {method} request to {url}")
+
+        try:
+            response = requests.request(
+                method=method,
+                url=url,
+                data=encoded_data if files is None else data,
+                files=files,
+                headers=request_headers,
+                timeout=self.timeout,
+            )
+
+            self._logger.debug(f"Response status: {response.status_code}")
+
+            # Handle error status codes
+            if response.status_code >= 400:
+                raise self.handle_api_error(response)
+
+            return response
+
+        except requests.exceptions.Timeout as e:
+            self._logger.error(f"Request timeout after {self.timeout} seconds")
+            raise NetworkError(f"Request timeout after {self.timeout} seconds", e)
+        except requests.exceptions.ConnectionError as e:
+            self._logger.error(f"Connection error: {e}")
+            raise NetworkError("Failed to connect to API server", e)
+        except requests.exceptions.RequestException as e:
+            self._logger.error(f"Request failed: {e}")
+            raise NetworkError(f"Request failed: {e}", e)
