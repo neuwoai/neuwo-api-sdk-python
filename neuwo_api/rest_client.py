@@ -5,7 +5,7 @@ This module provides a client for analysis where content is provided directly as
 """
 
 from datetime import date
-from typing import Any, Dict, List, Optional
+from typing import List, Optional
 
 import requests
 
@@ -32,11 +32,6 @@ class NeuwoRestClient:
     REST endpoints operate over standard HTTP methods and use a REST API token passed as a query parameter.
     REST endpoints are designed for server-side integration where content is provided directly as text.
     The REST API serves publishers who want to enrich the data before publishing by analysing content.
-
-    Attributes:
-        token: REST API authentication token
-        base_url: Base URL for the API
-        timeout: Request timeout in seconds
     """
 
     DEFAULT_TIMEOUT = 60
@@ -54,45 +49,20 @@ class NeuwoRestClient:
         """
         if not token or not isinstance(token, str):
             raise ValueError("Token must be a non-empty string")
-        self.token = token.strip()
+        token = token.strip()
 
         if not base_url or not isinstance(base_url, str):
             raise ValueError("Server base URL must be a non-empty string")
-        self.base_url = base_url.rstrip("/")
+        base_url = base_url.rstrip("/")
 
-        self.timeout = timeout or self.DEFAULT_TIMEOUT
+        timeout = timeout or self.DEFAULT_TIMEOUT
 
         # Initialize request handler
         self._request_handler = RequestHandler(
-            token=self.token, base_url=self.base_url, timeout=self.timeout
+            token=token, base_url=base_url, timeout=timeout
         )
 
-        logger.info(f"Initialized NeuwoRestClient with base_url: {self.base_url}")
-
-    def _request(
-        self,
-        method: str,
-        endpoint: str,
-        params: Optional[Dict[str, Any]] = None,
-        data: Optional[Dict[str, Any]] = None,
-        headers: Optional[Dict[str, str]] = None,
-    ) -> requests.Response:
-        """Make an HTTP request via the request handler.
-
-        Args:
-            method: HTTP method (GET, POST, PUT)
-            endpoint: API endpoint path
-            params: Query parameters
-            data: Form data for POST/PUT requests
-            headers: Additional HTTP headers
-
-        Returns:
-            Response object
-        """
-        return self._request_handler.request(
-            method=method, endpoint=endpoint, params=params, data=data, headers=headers
-        )
-
+        logger.info(f"Initialized NeuwoRestClient with base_url: {base_url}")
 
     def get_ai_topics_raw(
         self,
@@ -168,7 +138,7 @@ class NeuwoRestClient:
         logger.info(f"Getting AI topics for content (length: {len(content)})")
 
         # Make request
-        return self._request(method="POST", endpoint="/GetAiTopics", data=data)
+        return self._request_handler.request(method="POST", endpoint="/GetAiTopics", data=data)
 
     def get_ai_topics(
         self,
@@ -281,7 +251,7 @@ class NeuwoRestClient:
         logger.info(f"Getting similar articles for document: {document_id}")
 
         # Make request
-        return self._request(method="GET", endpoint="/GetSimilar", params=params)
+        return self._request_handler.request(method="GET", endpoint="/GetSimilar", params=params)
 
     def get_similar(
         self,
@@ -407,7 +377,7 @@ class NeuwoRestClient:
         logger.info(f"Updating article: {document_id}")
 
         # Make request
-        return self._request(
+        return self._request_handler.request(
             method="PUT", endpoint=f"/UpdateArticle/{document_id}", data=data
         )
 
@@ -510,7 +480,7 @@ class NeuwoRestClient:
         logger.info(f"Adding {len(tags)} training tags to article: {document_id}")
 
         # Make request
-        return self._request(method="POST", endpoint="/TrainAiTopics", data=data)
+        return self._request_handler.request(method="POST", endpoint="/TrainAiTopics", data=data)
 
     def train_ai_topics(
         self,

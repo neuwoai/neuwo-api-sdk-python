@@ -19,9 +19,9 @@ class TestNeuwoEdgeClientInit:
 
     def test_init_with_token(self):
         client = NeuwoEdgeClient(token="test-token", base_url="https://custom.api.com")
-        assert client.token == "test-token"
-        assert client.base_url == "https://custom.api.com"
-        assert client.timeout == 60
+        assert client._request_handler.token == "test-token"
+        assert client._request_handler.base_url == "https://custom.api.com"
+        assert client._request_handler.timeout == 60
         assert client.default_origin is None
 
     def test_init_with_origin(self):
@@ -34,7 +34,7 @@ class TestNeuwoEdgeClientInit:
 
     def test_init_with_custom_base_url(self):
         client = NeuwoEdgeClient(token="test-token", base_url="https://custom.api.com")
-        assert client.base_url == "https://custom.api.com"
+        assert client._request_handler.base_url == "https://custom.api.com"
 
     def test_init_without_token(self):
         with pytest.raises(ValueError, match="non-empty string"):
@@ -48,17 +48,17 @@ class TestNeuwoEdgeClientInit:
         client = NeuwoEdgeClient(
             token="  test-token  ", base_url="https://custom.api.com"
         )
-        assert client.token == "test-token"
+        assert client._request_handler.token == "test-token"
 
     def test_init_strips_base_url_slash(self):
         client = NeuwoEdgeClient(token="test-token", base_url="https://custom.api.com/")
-        assert client.base_url == "https://custom.api.com"
+        assert client._request_handler.base_url == "https://custom.api.com"
 
 
 class TestGetAiTopics:
     """Tests for get_ai_topics methods."""
 
-    @patch("neuwo_api.edge_client.NeuwoEdgeClient._request")
+    @patch("neuwo_api.utils.RequestHandler.request")
     def test_get_ai_topics_success(self, mock_request, sample_get_ai_topics_response):
         mock_response = Mock()
         mock_response.status_code = 200
@@ -82,7 +82,7 @@ class TestGetAiTopics:
         with pytest.raises(ValidationError):
             client.get_ai_topics(url="not-a-url")
 
-    @patch("neuwo_api.edge_client.NeuwoEdgeClient._request")
+    @patch("neuwo_api.utils.RequestHandler.request")
     def test_get_ai_topics_with_origin(
         self, mock_request, sample_get_ai_topics_response
     ):
@@ -104,7 +104,7 @@ class TestGetAiTopics:
         call_args = mock_request.call_args
         assert call_args[1]["headers"]["Origin"] == "https://mysite.com"
 
-    @patch("neuwo_api.edge_client.NeuwoEdgeClient._request")
+    @patch("neuwo_api.utils.RequestHandler.request")
     def test_get_ai_topics_raw(self, mock_request):
         mock_response = Mock()
         mock_response.status_code = 200
@@ -223,7 +223,7 @@ class TestGetAiTopicsWait:
 class TestGetAiTopicsList:
     """Tests for get_ai_topics_list methods."""
 
-    @patch("neuwo_api.edge_client.NeuwoEdgeClient._request")
+    @patch("neuwo_api.utils.RequestHandler.request")
     def test_get_ai_topics_list_success(
         self, mock_request, sample_get_ai_topics_response
     ):
@@ -248,7 +248,7 @@ class TestGetAiTopicsList:
         assert len(result) == 1
         assert result[0].url == "https://example.com"
 
-    @patch("neuwo_api.edge_client.NeuwoEdgeClient._request")
+    @patch("neuwo_api.utils.RequestHandler.request")
     def test_get_ai_topics_list_with_error(self, mock_request):
         mock_response = Mock()
         mock_response.status_code = 200
@@ -267,7 +267,7 @@ class TestGetAiTopicsList:
             with pytest.raises(ContentNotAvailableError, match="Tagging not created"):
                 client.get_ai_topics_list(urls=["https://example.com"])
 
-    @patch("neuwo_api.edge_client.NeuwoEdgeClient._request")
+    @patch("neuwo_api.utils.RequestHandler.request")
     def test_get_ai_topics_list_raw(self, mock_request):
         mock_response = Mock()
         mock_response.status_code = 200
@@ -286,7 +286,7 @@ class TestGetAiTopicsList:
 class TestGetSimilar:
     """Tests for get_similar methods."""
 
-    @patch("neuwo_api.edge_client.NeuwoEdgeClient._request")
+    @patch("neuwo_api.utils.RequestHandler.request")
     def test_get_similar_success(self, mock_request, sample_similar_article_data):
         mock_response = Mock()
         mock_response.status_code = 200
@@ -309,7 +309,7 @@ class TestGetSimilar:
         with pytest.raises(ValidationError):
             client.get_similar(document_url="not-a-url")
 
-    @patch("neuwo_api.edge_client.NeuwoEdgeClient._request")
+    @patch("neuwo_api.utils.RequestHandler.request")
     def test_get_similar_with_filters(self, mock_request):
         mock_response = Mock()
         mock_response.status_code = 200
@@ -331,7 +331,7 @@ class TestGetSimilar:
         assert call_args[1]["params"]["past_days"] == 30
         assert call_args[1]["params"]["publicationid"] == ["pub1", "pub2"]
 
-    @patch("neuwo_api.edge_client.NeuwoEdgeClient._request")
+    @patch("neuwo_api.utils.RequestHandler.request")
     def test_get_similar_raw(self, mock_request):
         mock_response = Mock()
         mock_response.status_code = 200
@@ -341,53 +341,3 @@ class TestGetSimilar:
         result = client.get_similar_raw(document_url="https://example.com/article")
 
         assert result == mock_response
-
-
-class TestRequestWithOrigin:
-    """Tests for _request method with origin header."""
-
-    @patch("neuwo_api.edge_client.RequestHandler.request")
-    def test_request_uses_default_origin(self, mock_handler_request):
-        mock_response = Mock()
-        mock_response.status_code = 200
-        mock_handler_request.return_value = mock_response
-
-        client = NeuwoEdgeClient(
-            token="test-token",
-            base_url="https://custom.api.com",
-            default_origin="https://default.com",
-        )
-        client._request("GET", "/test")
-
-        call_args = mock_handler_request.call_args
-        assert call_args[1]["headers"]["Origin"] == "https://default.com"
-
-    @patch("neuwo_api.edge_client.RequestHandler.request")
-    def test_request_overrides_origin(self, mock_handler_request):
-        mock_response = Mock()
-        mock_response.status_code = 200
-        mock_handler_request.return_value = mock_response
-
-        client = NeuwoEdgeClient(
-            token="test-token",
-            base_url="https://custom.api.com",
-            default_origin="https://default.com",
-        )
-        client._request("GET", "/test", headers={"Origin": "https://override.com"})
-
-        call_args = mock_handler_request.call_args
-        assert call_args[1]["headers"]["Origin"] == "https://override.com"
-
-    @patch("neuwo_api.edge_client.RequestHandler.request")
-    def test_request_no_origin_when_not_configured(self, mock_handler_request):
-        mock_response = Mock()
-        mock_response.status_code = 200
-        mock_handler_request.return_value = mock_response
-
-        client = NeuwoEdgeClient(token="test-token", base_url="https://custom.api.com")
-        client._request("GET", "/test")
-
-        call_args = mock_handler_request.call_args
-        # Should not add Origin header if not configured
-        if call_args[1].get("headers"):
-            assert "Origin" not in call_args[1]["headers"]

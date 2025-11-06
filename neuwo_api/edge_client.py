@@ -6,7 +6,7 @@ This module provides a client for analysis where content is identified by URL (w
 
 import time
 from io import BytesIO
-from typing import Any, Dict, List, Optional, Union
+from typing import List, Optional, Union
 
 import requests
 
@@ -26,14 +26,11 @@ logger = get_logger(__name__)
 class NeuwoEdgeClient:
     """Client for Neuwo EDGE API endpoints.
 
-    EDGE endpoints operate over standard HTTP methods and use an EDGE API token passed as a query parameter. 
-    EDGE endpoints are designed for client-side integration where content is identified by URL. 
+    EDGE endpoints operate over standard HTTP methods and use an EDGE API token passed as a query parameter.
+    EDGE endpoints are designed for client-side integration where content is identified by URL.
     The EDGE API serves publishers who want to enrich the data of published articles.
 
     Attributes:
-        token: EDGE API authentication token
-        base_url: Base URL for the API
-        timeout: Request timeout in seconds
         default_origin: Default origin header for requests
     """
 
@@ -59,59 +56,21 @@ class NeuwoEdgeClient:
         """
         if not token or not isinstance(token, str):
             raise ValueError("Token must be a non-empty string")
-        self.token = token.strip()
+        token = token.strip()
 
         if not base_url or not isinstance(base_url, str):
             raise ValueError("Server base URL must be a non-empty string")
-        self.base_url = base_url.rstrip("/")
+        base_url = base_url.rstrip("/")
 
-        self.timeout = timeout or self.DEFAULT_TIMEOUT
+        timeout = timeout or self.DEFAULT_TIMEOUT
         self.default_origin = default_origin
 
         # Initialize request handler
         self._request_handler = RequestHandler(
-            token=self.token, base_url=self.base_url, timeout=self.timeout
+            token=token, base_url=base_url, timeout=timeout
         )
 
-        logger.info(f"Initialized NeuwoEdgeClient with base_url: {self.base_url}")
-
-    def _request(
-        self,
-        method: str,
-        endpoint: str,
-        params: Optional[Dict[str, Any]] = None,
-        data: Optional[Dict[str, Any]] = None,
-        headers: Optional[Dict[str, str]] = None,
-        files: Optional[Dict[str, Any]] = None,
-    ) -> requests.Response:
-        """Make an HTTP request via the request handler.
-
-        Args:
-            method: HTTP method (GET, POST)
-            endpoint: API endpoint path
-            params: Query parameters
-            data: Form data for POST requests
-            headers: Additional HTTP headers
-            files: Files to upload
-
-        Returns:
-            Response object
-        """
-        # Add origin header if configured
-        if self.default_origin:
-            if headers is None:
-                headers = {}
-            if "Origin" not in headers:
-                headers["Origin"] = self.default_origin
-
-        return self._request_handler.request(
-            method=method,
-            endpoint=endpoint,
-            params=params,
-            data=data,
-            headers=headers,
-            files=files,
-        )
+        logger.info(f"Initialized NeuwoEdgeClient with base_url: {base_url}")
 
     def get_ai_topics_raw(
         self, url: str, origin: Optional[str] = None
@@ -151,7 +110,7 @@ class NeuwoEdgeClient:
         logger.info(f"Getting AI topics for URL: {url}")
 
         # Make request
-        return self._request(
+        return self._request_handler.request(
             method="GET",
             endpoint="/edge/GetAiTopics",
             params=params,
@@ -311,7 +270,7 @@ class NeuwoEdgeClient:
             headers["Origin"] = self.default_origin
 
         # Make request
-        return self._request(
+        return self._request_handler.request(
             method="POST",
             endpoint="/edge/GetAiTopicsList",
             files=files,
@@ -427,7 +386,7 @@ class NeuwoEdgeClient:
         logger.info(f"Getting similar articles for URL: {document_url}")
 
         # Make request
-        return self._request(
+        return self._request_handler.request(
             method="GET",
             endpoint="/edge/GetSimilar",
             params=params,

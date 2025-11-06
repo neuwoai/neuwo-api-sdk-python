@@ -16,19 +16,19 @@ class TestNeuwoRestClientInit:
 
     def test_init_with_token(self):
         client = NeuwoRestClient(token="test-token", base_url="https://custom.api.com")
-        assert client.token == "test-token"
-        assert client.base_url == "https://custom.api.com"
-        assert client.timeout == 60
+        assert client._request_handler.token == "test-token"
+        assert client._request_handler.base_url == "https://custom.api.com"
+        assert client._request_handler.timeout == 60
 
     def test_init_with_custom_base_url(self):
         client = NeuwoRestClient(token="test-token", base_url="https://custom.api.com")
-        assert client.base_url == "https://custom.api.com"
+        assert client._request_handler.base_url == "https://custom.api.com"
 
     def test_init_with_custom_timeout(self):
         client = NeuwoRestClient(
             token="test-token", base_url="https://custom.api.com", timeout=120
         )
-        assert client.timeout == 120
+        assert client._request_handler.timeout == 120
 
     def test_init_without_token(self):
         with pytest.raises(ValueError, match="non-empty string"):
@@ -42,17 +42,17 @@ class TestNeuwoRestClientInit:
         client = NeuwoRestClient(
             token="  test-token  ", base_url="https://custom.api.com"
         )
-        assert client.token == "test-token"
+        assert client._request_handler.token == "test-token"
 
     def test_init_strips_base_url_slash(self):
         client = NeuwoRestClient(token="test-token", base_url="https://custom.api.com/")
-        assert client.base_url == "https://custom.api.com"
+        assert client._request_handler.base_url == "https://custom.api.com"
 
 
 class TestGetAiTopics:
     """Tests for get_ai_topics methods."""
 
-    @patch("neuwo_api.rest_client.NeuwoRestClient._request")
+    @patch("neuwo_api.utils.RequestHandler.request")
     def test_get_ai_topics_success(self, mock_request, sample_get_ai_topics_response):
         # Setup mock
         mock_response = Mock()
@@ -74,7 +74,7 @@ class TestGetAiTopics:
         assert result.tags[0].value == "Domestic Animals and Pets"
         mock_request.assert_called_once()
 
-    @patch("neuwo_api.rest_client.NeuwoRestClient._request")
+    @patch("neuwo_api.utils.RequestHandler.request")
     def test_get_ai_topics_with_all_params(
         self, mock_request, sample_get_ai_topics_response
     ):
@@ -119,7 +119,7 @@ class TestGetAiTopics:
         with pytest.raises(ValidationError, match="whitespace"):
             client.get_ai_topics(content="   ")
 
-    @patch("neuwo_api.rest_client.NeuwoRestClient._request")
+    @patch("neuwo_api.utils.RequestHandler.request")
     def test_get_ai_topics_raw(self, mock_request):
         mock_response = Mock()
         mock_response.status_code = 200
@@ -135,7 +135,7 @@ class TestGetAiTopics:
 class TestGetSimilar:
     """Tests for get_similar methods."""
 
-    @patch("neuwo_api.rest_client.NeuwoRestClient._request")
+    @patch("neuwo_api.utils.RequestHandler.request")
     def test_get_similar_success(self, mock_request, sample_similar_article_data):
         mock_response = Mock()
         mock_response.status_code = 200
@@ -154,7 +154,7 @@ class TestGetSimilar:
         assert result[0].article_id == "record_id_1"
         mock_request.assert_called_once()
 
-    @patch("neuwo_api.rest_client.NeuwoRestClient._request")
+    @patch("neuwo_api.utils.RequestHandler.request")
     def test_get_similar_with_filters(self, mock_request):
         mock_response = Mock()
         mock_response.status_code = 200
@@ -176,7 +176,7 @@ class TestGetSimilar:
         assert call_args[1]["params"]["past_days"] == 30
         assert call_args[1]["params"]["publicationid"] == ["pub1", "pub2"]
 
-    @patch("neuwo_api.rest_client.NeuwoRestClient._request")
+    @patch("neuwo_api.utils.RequestHandler.request")
     def test_get_similar_raw(self, mock_request):
         mock_response = Mock()
         mock_response.status_code = 200
@@ -191,7 +191,7 @@ class TestGetSimilar:
 class TestUpdateArticle:
     """Tests for update_article methods."""
 
-    @patch("neuwo_api.rest_client.NeuwoRestClient._request")
+    @patch("neuwo_api.utils.RequestHandler.request")
     def test_update_article_success(self, mock_request, sample_article_data):
         mock_response = Mock()
         mock_response.status_code = 200
@@ -217,7 +217,7 @@ class TestUpdateArticle:
         call_kwargs = mock_request.call_args[1]
         assert "/UpdateArticle/doc123" in call_kwargs.get("endpoint", "")
 
-    @patch("neuwo_api.rest_client.NeuwoRestClient._request")
+    @patch("neuwo_api.utils.RequestHandler.request")
     def test_update_article_all_fields(self, mock_request, sample_article_data):
         mock_response = Mock()
         mock_response.status_code = 200
@@ -252,7 +252,7 @@ class TestUpdateArticle:
 class TestTrainAiTopics:
     """Tests for train_ai_topics methods."""
 
-    @patch("neuwo_api.rest_client.NeuwoRestClient._request")
+    @patch("neuwo_api.utils.RequestHandler.request")
     def test_train_ai_topics_success(self, mock_request, sample_training_tag_data):
         mock_response = Mock()
         mock_response.status_code = 200
@@ -280,7 +280,7 @@ class TestTrainAiTopics:
         with pytest.raises(ValidationError):
             client.train_ai_topics(document_id="doc123", tags=None)
 
-    @patch("neuwo_api.rest_client.NeuwoRestClient._request")
+    @patch("neuwo_api.utils.RequestHandler.request")
     def test_train_ai_topics_raw(self, mock_request):
         mock_response = Mock()
         mock_response.status_code = 200
