@@ -14,7 +14,7 @@ long_description = (this_directory / "README.md").read_text(encoding="utf-8")
 
 setup(
     name="neuwo_api",
-    version="0.2.0",
+    version="0.3.0",
     description="Neuwo API SDK - Python SDK client for the Neuwo content classification API.",
     long_description=long_description,
     author="Grzegorz Malisz",
