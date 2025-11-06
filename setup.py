@@ -37,10 +37,13 @@ setup(
         "dev": [
             "pytest>=7.0.0",
             "pytest-cov>=4.0.0",
+            "responses>=0.23.0",
             "black>=23.0.0",
             "flake8>=6.0.0",
             "mypy>=1.0.0",
             "isort>=5.12.0",
+            "build>=1.0.0",
+            "twine>=4.0.0",
         ],
         "test": [
             "pytest>=7.0.0",

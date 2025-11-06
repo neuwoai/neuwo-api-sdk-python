@@ -396,11 +396,17 @@ mypy neuwo_api/
 ### Building Distribution
 
 ```bash
-# Install build tools
-pip install build twine
+# Clean up build artifacts 
+rm -rf dist/ build/ *.egg-info
 
 # Build
 python -m build
+
+# Verify the distribution files
+twine check dist/*
+
+# Upload to TestPyPI
+twine upload --repository testpypi dist/*
 
 # Upload to PyPI
 twine upload dist/*
