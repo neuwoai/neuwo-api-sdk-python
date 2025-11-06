@@ -396,20 +396,45 @@ mypy neuwo_api/
 ### Building Distribution
 
 ```bash
-# Clean up build artifacts 
+# Clean up build artifacts
 rm -rf dist/ build/ *.egg-info
 
-# Build
+# Build distribution packages
 python -m build
-
-# Verify the distribution files
-twine check dist/*
 
 # Upload to TestPyPI
 twine upload --repository testpypi dist/*
 
 # Upload to PyPI
 twine upload dist/*
+```
+
+### Pre-publish Package Validation
+
+Before publishing, validate your package to ensure it's configured correctly:
+
+```bash
+# Clean build the package first
+rm -rf dist/ build/ *.egg-info
+python -m build
+
+# Verify package contents
+tar -tzf dist/*.tar.gz
+
+# Check distribution files for common issues
+twine check dist/*
+
+# Verify package metadata
+python -m setup.py check --metadata --strict
+
+# Test package installation (dry-run in isolated environment)
+python -m pip install --dry-run --no-deps dist/*.whl
+
+# Validate README will render correctly on PyPI
+python -m readme_renderer README.md -o /tmp/README.html
+
+# Test TestPyPI upload (dry-run)
+twine check dist/* --strict
 ```
 
 ## CI/CD
@@ -458,6 +483,7 @@ Add GitHub secrets for API tokens:
    - Test: `pip install -i https://test.pypi.org/simple/ neuwo-api`
 
 2. **Production release**:
+
    - Update version in [pyproject.toml](pyproject.toml), [setup.py](setup.py) and [README.md](README.md)
    - Commit changes to repository
    - Go to Actions > Publish Python Package > Run workflow
@@ -484,6 +510,6 @@ Follow [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`):
 - **MINOR**: New features (backward compatible)
 - **PATCH**: Bug fixes (backward compatible)
 
-## License
+## Licence
 
-This project is licensed under the MIT License - see the [LICENCE](LICENCE) file for details.
+This project is licensed under the MIT Licence - see the [LICENCE](LICENCE) file for details.

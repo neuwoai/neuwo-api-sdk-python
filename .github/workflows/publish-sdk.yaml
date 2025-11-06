@@ -1,10 +1,10 @@
-name: Publish Python Package
+name: Publish Python SDK
 
 on:
   workflow_dispatch:
     inputs:
       target:
-        description: "Deployment target"
+        description: "Publishing target"
         required: true
         type: choice
         options:
