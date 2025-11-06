@@ -21,7 +21,6 @@ from neuwo_api.exceptions import (
 from neuwo_api.utils import (
     RequestHandler,
     parse_json_response,
-    parse_xml_response,
     prepare_url_list_file,
     sanitize_content,
     validate_url,
@@ -73,25 +72,6 @@ class TestParseJsonResponse:
     def test_invalid_json(self):
         with pytest.raises(NeuwoAPIError, match="Invalid JSON"):
             parse_json_response("not json")
-
-
-class TestParseXmlResponse:
-    """Tests for parse_xml_response function."""
-
-    def test_simple_xml(self):
-        xml_str = "<rsp><headline>Test</headline></rsp>"
-        result = parse_xml_response(xml_str)
-        assert result["headline"] == "Test"
-
-    def test_xml_with_multiple_same_tags(self):
-        xml_str = "<rsp><headline>Test1</headline><headline>Test2</headline></rsp>"
-        result = parse_xml_response(xml_str)
-        assert isinstance(result["headline"], list)
-        assert len(result["headline"]) == 2
-
-    def test_invalid_xml(self):
-        with pytest.raises(NeuwoAPIError, match="Invalid XML"):
-            parse_xml_response("<invalid>")
 
 
 class TestPrepareUrlListFile:

@@ -6,7 +6,6 @@ response parsing, and other common operations.
 """
 
 import json
-import xml.etree.ElementTree as ET
 from typing import Any, Dict, List, Optional
 from urllib.parse import ParseResult, quote, urlencode, urlparse, urlunparse
 
@@ -93,71 +92,6 @@ def parse_json_response(response_text: str) -> Dict[str, Any]:
         logger.error(f"Failed to parse JSON response: {e}")
         logger.debug(f"Response text: {response_text[:500]}")
         raise NeuwoAPIError(f"Invalid JSON response from API: {e}") from e
-
-
-def parse_xml_response(response_text: str) -> Dict[str, Any]:
-    """Parse XML response text into a dictionary.
-
-    This function converts XML responses from the Neuwo API into
-    a dictionary structure that matches the JSON format.
-
-    Args:
-        response_text: XML string from API response
-
-    Returns:
-        Parsed dictionary
-
-    Raises:
-        NeuwoAPIError: If XML parsing fails
-    """
-    try:
-        root = ET.fromstring(response_text)
-        return _xml_element_to_dict(root)
-    except ET.ParseError as e:
-        logger.error(f"Failed to parse XML response: {e}")
-        logger.debug(f"Response text: {response_text[:500]}")
-        raise NeuwoAPIError(f"Invalid XML response from API: {e}") from e
-
-
-def _xml_element_to_dict(element: ET.Element) -> Dict[str, Any]:
-    """Convert an XML element to a dictionary.
-
-    Handles the specific XML structure used by Neuwo API responses.
-
-    Args:
-        element: XML element to convert
-
-    Returns:
-        Dictionary representation of the XML element
-    """
-    result: Dict[str, Any] = {}
-
-    # Handle attributes
-    if element.attrib:
-        result.update(element.attrib)
-
-    # Handle text content
-    if element.text and element.text.strip():
-        # If element has no children, return text directly
-        if len(element) == 0:
-            return element.text.strip()
-
-    # Handle child elements
-    for child in element:
-        child_data = _xml_element_to_dict(child)
-
-        # Handle multiple elements with same tag (arrays)
-        if child.tag in result:
-            # Convert to list if not already
-            if not isinstance(result[child.tag], list):
-                result[child.tag] = [result[child.tag]]
-            result[child.tag].append(child_data)
-        else:
-            result[child.tag] = child_data
-
-    return result
-
-
 
 
 def prepare_url_list_file(urls: List[str]) -> bytes:

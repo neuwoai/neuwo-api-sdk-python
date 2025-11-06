@@ -20,7 +20,6 @@ from .models import (
 from .utils import (
     RequestHandler,
     parse_json_response,
-    parse_xml_response,
     sanitize_content,
 )
 
@@ -94,27 +93,6 @@ class NeuwoRestClient:
             method=method, endpoint=endpoint, params=params, data=data, headers=headers
         )
 
-    def _parse_response(
-        self, response: requests.Response, format: str = "json"
-    ) -> Dict[str, Any]:
-        """Parse API response based on format.
-
-        Args:
-            response: Response object
-            format: Expected response format
-
-        Returns:
-            Parsed response data
-
-        Raises:
-            NeuwoAPIError: If parsing fails
-        """
-        content = response.text
-
-        if format == "json":
-            return parse_json_response(content)
-        else:  # XML
-            return parse_xml_response(content)
 
     def get_ai_topics_raw(
         self,
@@ -251,7 +229,7 @@ class NeuwoRestClient:
         )
 
         # Parse response
-        response_data = self._parse_response(response, "json")
+        response_data = parse_json_response(response.text)
 
         # Convert to model
         result = GetAiTopicsResponse.from_dict(response_data)
@@ -345,7 +323,7 @@ class NeuwoRestClient:
         )
 
         # Parse response
-        response_data = self._parse_response(response, "json")
+        response_data = parse_json_response(response.text)
 
         # Convert to models
         if not isinstance(response_data, list):
@@ -492,7 +470,7 @@ class NeuwoRestClient:
         )
 
         # Parse response
-        response_data = self._parse_response(response, "json")
+        response_data = parse_json_response(response.text)
 
         # Convert to model
         article = Article.from_dict(response_data)
@@ -564,7 +542,7 @@ class NeuwoRestClient:
         )
 
         # Parse response
-        response_data = self._parse_response(response, "json")
+        response_data = parse_json_response(response.text)
 
         # Convert to models
         if not isinstance(response_data, list):

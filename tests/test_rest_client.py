@@ -292,31 +292,3 @@ class TestTrainAiTopics:
         assert result == mock_response
         call_args = mock_request.call_args
         assert call_args[1]["data"]["tags"] == ["tag1", "tag2"]
-
-
-class TestParseResponse:
-    """Tests for _parse_response method."""
-
-    def test_parse_json_response(self):
-        client = NeuwoRestClient(token="test-token", base_url="https://custom.api.com")
-        mock_response = Mock()
-        mock_response.text = '{"key": "value"}'
-
-        with patch(
-            "neuwo_api.rest_client.parse_json_response", return_value={"key": "value"}
-        ):
-            result = client._parse_response(mock_response, "json")
-
-        assert result == {"key": "value"}
-
-    def test_parse_xml_response(self):
-        client = NeuwoRestClient(token="test-token", base_url="https://custom.api.com")
-        mock_response = Mock()
-        mock_response.text = "<rsp><key>value</key></rsp>"
-
-        with patch(
-            "neuwo_api.rest_client.parse_xml_response", return_value={"key": "value"}
-        ):
-            result = client._parse_response(mock_response, "xml")
-
-        assert result == {"key": "value"}
