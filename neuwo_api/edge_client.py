@@ -189,7 +189,7 @@ class NeuwoEdgeClient:
         response = self.get_ai_topics_raw(url=url, origin=origin)
 
         # Parse response (will raise ContentNotAvailableError if error field present)
-        response_data = parse_json_response(response.text)
+        response_data = parse_json_response(response)
 
         # Convert to model
         result = GetAiTopicsResponse.from_dict(response_data)
@@ -351,7 +351,7 @@ class NeuwoEdgeClient:
         response = self.get_ai_topics_list_raw(urls=urls, origin=origin)
 
         # Parse response
-        response_data = parse_json_response(response.text)
+        response_data = parse_json_response(response)
 
         # Convert to models
         if not isinstance(response_data, list):
@@ -474,7 +474,7 @@ class NeuwoEdgeClient:
         )
 
         # Parse response
-        response_data = parse_json_response(response.text)
+        response_data = parse_json_response(response)
 
         # Convert to models
         if not isinstance(response_data, list):

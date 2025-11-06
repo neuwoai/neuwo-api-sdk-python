@@ -229,7 +229,7 @@ class NeuwoRestClient:
         )
 
         # Parse response
-        response_data = parse_json_response(response.text)
+        response_data = parse_json_response(response)
 
         # Convert to model
         result = GetAiTopicsResponse.from_dict(response_data)
@@ -323,7 +323,7 @@ class NeuwoRestClient:
         )
 
         # Parse response
-        response_data = parse_json_response(response.text)
+        response_data = parse_json_response(response)
 
         # Convert to models
         if not isinstance(response_data, list):
@@ -470,7 +470,7 @@ class NeuwoRestClient:
         )
 
         # Parse response
-        response_data = parse_json_response(response.text)
+        response_data = parse_json_response(response)
 
         # Convert to model
         article = Article.from_dict(response_data)
@@ -542,7 +542,7 @@ class NeuwoRestClient:
         )
 
         # Parse response
-        response_data = parse_json_response(response.text)
+        response_data = parse_json_response(response)
 
         # Convert to models
         if not isinstance(response_data, list):

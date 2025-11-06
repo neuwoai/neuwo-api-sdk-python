@@ -60,18 +60,22 @@ class TestParseJsonResponse:
     """Tests for parse_json_response function."""
 
     def test_valid_json(self):
-        json_str = '{"key": "value"}'
-        result = parse_json_response(json_str)
+        mock_response = Mock()
+        mock_response.text = '{"key": "value"}'
+        result = parse_json_response(mock_response)
         assert result == {"key": "value"}
 
     def test_json_with_error_field(self):
-        json_str = '{"error": "Tagging not created", "url": "https://example.com"}'
+        mock_response = Mock()
+        mock_response.text = '{"error": "Tagging not created", "url": "https://example.com"}'
         with pytest.raises(ContentNotAvailableError, match="Tagging not created"):
-            parse_json_response(json_str)
+            parse_json_response(mock_response)
 
     def test_invalid_json(self):
+        mock_response = Mock()
+        mock_response.text = "not json"
         with pytest.raises(NeuwoAPIError, match="Invalid JSON"):
-            parse_json_response("not json")
+            parse_json_response(mock_response)
 
 
 class TestPrepareUrlListFile:

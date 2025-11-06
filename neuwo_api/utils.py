@@ -63,11 +63,11 @@ def validate_url(url: str) -> bool:
         raise ValidationError(f"Invalid URL: {url}") from e
 
 
-def parse_json_response(response_text: str) -> Dict[str, Any]:
-    """Parse JSON response text into a dictionary.
+def parse_json_response(response: requests.Response) -> Dict[str, Any]:
+    """Parse JSON response into a dictionary.
 
     Args:
-        response_text: JSON string from API response
+        response: HTTP response object from API
 
     Returns:
         Parsed dictionary
@@ -76,6 +76,8 @@ def parse_json_response(response_text: str) -> Dict[str, Any]:
         ContentNotAvailableError: If response contains an error field
         NeuwoAPIError: If JSON parsing fails
     """
+    response_text = response.text
+
     try:
         data = json.loads(response_text)
 
