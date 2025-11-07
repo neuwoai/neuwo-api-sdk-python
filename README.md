@@ -350,7 +350,7 @@ pytest tests/test_rest_client.py
 pytest -v
 ```
 
-<!-- ### Code Quality
+### Code Quality
 
 ```bash
 # Format code
@@ -364,7 +364,7 @@ flake8 neuwo_api/ tests/
 
 # Type checking
 mypy neuwo_api/
-``` -->
+```
 
 ### Building Distribution
 

@@ -18,7 +18,9 @@ class TestNeuwoEdgeClientInit:
     """Tests for NeuwoEdgeClient initialization."""
 
     def test_init_with_token(self):
-        client = NeuwoEdgeClient(token="test-token", base_url="https://custom.api.com")
+        client = NeuwoEdgeClient(
+            token="test-token", base_url="https://custom.api.com"
+        )
         assert client._request_handler.token == "test-token"
         assert client._request_handler.base_url == "https://custom.api.com"
         assert client._request_handler.timeout == 60
@@ -33,7 +35,9 @@ class TestNeuwoEdgeClientInit:
         assert client.default_origin == "https://example.com"
 
     def test_init_with_custom_base_url(self):
-        client = NeuwoEdgeClient(token="test-token", base_url="https://custom.api.com")
+        client = NeuwoEdgeClient(
+            token="test-token", base_url="https://custom.api.com"
+        )
         assert client._request_handler.base_url == "https://custom.api.com"
 
     def test_init_without_token(self):
@@ -51,7 +55,9 @@ class TestNeuwoEdgeClientInit:
         assert client._request_handler.token == "test-token"
 
     def test_init_strips_base_url_slash(self):
-        client = NeuwoEdgeClient(token="test-token", base_url="https://custom.api.com/")
+        client = NeuwoEdgeClient(
+            token="test-token", base_url="https://custom.api.com/"
+        )
         assert client._request_handler.base_url == "https://custom.api.com"
 
 
@@ -59,13 +65,17 @@ class TestGetAiTopics:
     """Tests for get_ai_topics methods."""
 
     @patch("neuwo_api.utils.RequestHandler.request")
-    def test_get_ai_topics_success(self, mock_request, sample_get_ai_topics_response):
+    def test_get_ai_topics_success(
+        self, mock_request, sample_get_ai_topics_response
+    ):
         mock_response = Mock()
         mock_response.status_code = 200
         mock_response.text = "{}"
         mock_request.return_value = mock_response
 
-        client = NeuwoEdgeClient(token="test-token", base_url="https://custom.api.com")
+        client = NeuwoEdgeClient(
+            token="test-token", base_url="https://custom.api.com"
+        )
 
         with patch(
             "neuwo_api.edge_client.parse_json_response",
@@ -78,7 +88,9 @@ class TestGetAiTopics:
         mock_request.assert_called_once()
 
     def test_get_ai_topics_invalid_url(self):
-        client = NeuwoEdgeClient(token="test-token", base_url="https://custom.api.com")
+        client = NeuwoEdgeClient(
+            token="test-token", base_url="https://custom.api.com"
+        )
         with pytest.raises(ValidationError):
             client.get_ai_topics(url="not-a-url")
 
@@ -91,7 +103,9 @@ class TestGetAiTopics:
         mock_response.text = "{}"
         mock_request.return_value = mock_response
 
-        client = NeuwoEdgeClient(token="test-token", base_url="https://custom.api.com")
+        client = NeuwoEdgeClient(
+            token="test-token", base_url="https://custom.api.com"
+        )
 
         with patch(
             "neuwo_api.edge_client.parse_json_response",
@@ -110,7 +124,9 @@ class TestGetAiTopics:
         mock_response.status_code = 200
         mock_request.return_value = mock_response
 
-        client = NeuwoEdgeClient(token="test-token", base_url="https://custom.api.com")
+        client = NeuwoEdgeClient(
+            token="test-token", base_url="https://custom.api.com"
+        )
         result = client.get_ai_topics_raw(url="https://example.com/article")
 
         assert result == mock_response
@@ -135,7 +151,9 @@ class TestGetAiTopicsWait:
             sample_get_ai_topics_response
         )
 
-        client = NeuwoEdgeClient(token="test-token", base_url="https://custom.api.com")
+        client = NeuwoEdgeClient(
+            token="test-token", base_url="https://custom.api.com"
+        )
         result = client.get_ai_topics_wait(url="https://example.com/article")
 
         assert len(result.tags) == 1
@@ -158,7 +176,9 @@ class TestGetAiTopicsWait:
             GetAiTopicsResponse.from_dict(sample_get_ai_topics_response),
         ]
 
-        client = NeuwoEdgeClient(token="test-token", base_url="https://custom.api.com")
+        client = NeuwoEdgeClient(
+            token="test-token", base_url="https://custom.api.com"
+        )
         result = client.get_ai_topics_wait(url="https://example.com/article")
 
         assert len(result.tags) == 1
@@ -173,11 +193,15 @@ class TestGetAiTopicsWait:
         # Setup: always fail
         mock_get.side_effect = NoDataAvailableError("No data yet available")
 
-        client = NeuwoEdgeClient(token="test-token", base_url="https://custom.api.com")
+        client = NeuwoEdgeClient(
+            token="test-token", base_url="https://custom.api.com"
+        )
 
         with pytest.raises(NoDataAvailableError, match="after 11 attempts"):
             client.get_ai_topics_wait(
-                url="https://example.com/article", max_retries=10, retry_interval=1
+                url="https://example.com/article",
+                max_retries=10,
+                retry_interval=1,
             )
 
         # Should call get_ai_topics max_retries + 1 times
@@ -185,11 +209,17 @@ class TestGetAiTopicsWait:
 
     @patch("neuwo_api.edge_client.NeuwoEdgeClient.get_ai_topics")
     @patch("time.sleep")
-    def test_get_ai_topics_wait_content_error_no_retry(self, mock_sleep, mock_get):
+    def test_get_ai_topics_wait_content_error_no_retry(
+        self, mock_sleep, mock_get
+    ):
         # Setup: permanent error
-        mock_get.side_effect = ContentNotAvailableError(url="https://example.com")
+        mock_get.side_effect = ContentNotAvailableError(
+            url="https://example.com"
+        )
 
-        client = NeuwoEdgeClient(token="test-token", base_url="https://custom.api.com")
+        client = NeuwoEdgeClient(
+            token="test-token", base_url="https://custom.api.com"
+        )
 
         with pytest.raises(ContentNotAvailableError):
             client.get_ai_topics_wait(url="https://example.com/article")
@@ -208,7 +238,9 @@ class TestGetAiTopicsWait:
             sample_get_ai_topics_response
         )
 
-        client = NeuwoEdgeClient(token="test-token", base_url="https://custom.api.com")
+        client = NeuwoEdgeClient(
+            token="test-token", base_url="https://custom.api.com"
+        )
         client.get_ai_topics_wait(
             url="https://example.com/article",
             max_retries=5,

@@ -7,11 +7,7 @@ AI-powered content tagging, brand safety analysis, and similarity detection.
 
 __version__ = "0.3.0"
 
-# Import main clients
 from .edge_client import NeuwoEdgeClient
-from .rest_client import NeuwoRestClient
-
-# Import exceptions
 from .exceptions import (
     AuthenticationError,
     BadRequestError,
@@ -25,11 +21,7 @@ from .exceptions import (
     ServerError,
     ValidationError,
 )
-
-# Import logger utilities
 from .logger import disable_logger, enable_logger, get_logger, setup_logger
-
-# Import models
 from .models import (
     Article,
     BrandSafetyIndication,
@@ -43,6 +35,7 @@ from .models import (
     TaxonomyArticle,
     TrainingTag,
 )
+from .rest_client import NeuwoRestClient
 
 # Define what gets exported when using "from neuwo_api import *"
 __all__ = [

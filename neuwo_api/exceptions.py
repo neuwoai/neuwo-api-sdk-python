@@ -38,7 +38,9 @@ class AuthenticationError(NeuwoAPIError):
     This typically means the API token is invalid or missing.
     """
 
-    def __init__(self, message: str = "Unauthorised - Invalid or missing token"):
+    def __init__(
+        self, message: str = "Unauthorised - Invalid or missing token"
+    ):
         """Initialize AuthenticationError."""
         super().__init__(message, status_code=401)
 
@@ -50,7 +52,9 @@ class ForbiddenError(NeuwoAPIError):
     or the requested resource is restricted.
     """
 
-    def __init__(self, message: str = "Forbidden - Token lacks necessary permissions"):
+    def __init__(
+        self, message: str = "Forbidden - Token lacks necessary permissions"
+    ):
         """Initialize ForbiddenError."""
         super().__init__(message, status_code=403)
 
@@ -166,14 +170,17 @@ class NetworkError(NeuwoAPIError):
     """
 
     def __init__(
-        self, message: str = "Network Error - Failed to communicate with server", original_error: Exception = None
+        self,
+        message: str = "Network Error - Failed to communicate with server",
+        original_error: Exception = None,
     ):
         """Initialize NetworkError.
 
         Args:
             message: Error message
-            original_error: The original exception that caused this error.
-                          This will be set as __cause__ for proper exception chaining.
+            original_error: The original exception that caused this
+                error. This will be set as __cause__ for proper
+                exception chaining.
         """
         super().__init__(message)
         # Use Python's exception chaining mechanism
@@ -189,8 +196,11 @@ class ContentNotAvailableError(NeuwoAPIError):
     - Edge processing couldn't find content to analyze
     """
 
-    def __init__(self, message: str = "Content Not Available - Tagging could not be created", 
-                 url: str = None):
+    def __init__(
+        self,
+        message: str = "Content Not Available - Tagging could not be created",
+        url: str = None,
+    ):
         """Initialize ContentNotAvailableError.
 
         Args:
@@ -210,7 +220,8 @@ class NoDataAvailableError(NotFoundError):
     """
 
     def __init__(
-        self, message: str = "No data yet available - URL queued for processing"
+        self,
+        message: str = "No data yet available - URL queued for processing",
     ):
         """Initialize NoDataAvailableError."""
         super().__init__(message)

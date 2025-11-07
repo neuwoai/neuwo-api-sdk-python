@@ -2,19 +2,22 @@
 Shared test fixtures and configuration for Neuwo API SDK tests.
 """
 
-import pytest
 from unittest.mock import Mock
+
+import pytest
 
 
 @pytest.fixture
 def mock_response():
     """Create a mock response object."""
+
     def _mock_response(status_code=200, json_data=None, text=None):
         mock = Mock()
         mock.status_code = status_code
         mock.json.return_value = json_data or {}
         mock.text = text or ""
         return mock
+
     return _mock_response
 
 
@@ -30,17 +33,17 @@ def sample_tag_data():
                 {
                     "Level_2": {
                         "value": "Pets & Domestic Animals",
-                        "URI": "https://tags.neuwo.ai/hierarchyID5-6"
+                        "URI": "https://tags.neuwo.ai/hierarchyID5-6",
                     }
                 },
                 {
                     "Level_1": {
                         "value": "Free time",
-                        "URI": "https://tags.neuwo.ai/hierarchyID12"
+                        "URI": "https://tags.neuwo.ai/hierarchyID12",
                     }
-                }
+                },
             ]
-        ]
+        ],
     }
 
 
@@ -56,96 +59,70 @@ def sample_tag_data_lowercase():
                 {
                     "Level_2": {
                         "value": "Pets & Domestic Animals",
-                        "uri": "https://tags.neuwo.ai/hierarchyID5-6"
+                        "uri": "https://tags.neuwo.ai/hierarchyID5-6",
                     }
                 },
                 {
                     "Level_1": {
                         "value": "Free time",
-                        "uri": "https://tags.neuwo.ai/hierarchyID12"
+                        "uri": "https://tags.neuwo.ai/hierarchyID12",
                     }
-                }
+                },
             ]
-        ]
+        ],
     }
 
 
 @pytest.fixture
 def sample_brand_safety_data():
     """Sample brand safety data for testing (uppercase variant)."""
-    return {
-        "BS_score": "1.0",
-        "BS_indication": "yes"
-    }
+    return {"BS_score": "1.0", "BS_indication": "yes"}
 
 
 @pytest.fixture
 def sample_brand_safety_data_lowercase():
-    """Sample brand safety data for testing (lowercase variant with boolean)."""
-    return {
-        "score": "1.0",
-        "indication": True
-    }
+    """Sample brand safety data for testing (lowercase variant)."""
+    return {"score": "1.0", "indication": True}
 
 
 @pytest.fixture
 def sample_brand_safety_data_lowercase_string():
     """Sample brand safety data for testing (lowercase variant with string)."""
-    return {
-        "score": "0.3",
-        "indication": "no"
-    }
+    return {"score": "0.3", "indication": "no"}
 
 
 @pytest.fixture
 def sample_taxonomy_data():
     """Sample taxonomy article data for testing."""
-    return {
-        "ID": "IAB16",
-        "label": "Pets",
-        "relevance": "0.54"
-    }
+    return {"ID": "IAB16", "label": "Pets", "relevance": "0.54"}
 
 
 @pytest.fixture
 def sample_smart_tag_data():
     """Sample smart tag data for testing."""
-    return {
-        "ID": "123",
-        "name": "animals-group"
-    }
+    return {"ID": "123", "name": "animals-group"}
 
 
 @pytest.fixture
 def sample_marketing_categories_data():
     """Sample marketing categories data for testing."""
     return {
-        "iab_tier_1": [
-            {
-                "ID": "IAB16",
-                "label": "Pets",
-                "relevance": "0.54"
-            }
-        ],
+        "iab_tier_1": [{"ID": "IAB16", "label": "Pets", "relevance": "0.54"}],
         "iab_tier_2": [
-            {
-                "ID": "IAB16-3",
-                "label": "Cats",
-                "relevance": "0.54"
-            }
+            {"ID": "IAB16-3", "label": "Cats", "relevance": "0.54"}
         ],
         "iab_tier_3": [],
         "iab_audience_tier_3": [
             {
                 "ID": "50",
                 "label": "Demographic | Gender | Male |",
-                "relevance": "0.9427"
+                "relevance": "0.9427",
             }
         ],
         "iab_audience_tier_4": [],
         "iab_audience_tier_5": [],
         "google_topics": [],
-        "Marketing_items": []
+        "Marketing_items": [],
     }
 
 
@@ -157,20 +134,13 @@ def sample_get_ai_topics_response():
             {
                 "URI": "https://tags.neuwo.ai/masterID101332",
                 "value": "Domestic Animals and Pets",
-                "score": "0.79728"
+                "score": "0.79728",
             }
         ],
-        "brand_safety": {
-            "BS_score": "1.0",
-            "BS_indication": "yes"
-        },
+        "brand_safety": {"BS_score": "1.0", "BS_indication": "yes"},
         "marketing_categories": {
             "iab_tier_1": [
-                {
-                    "ID": "IAB16",
-                    "label": "Pets",
-                    "relevance": "0.54"
-                }
+                {"ID": "IAB16", "label": "Pets", "relevance": "0.54"}
             ],
             "iab_tier_2": [],
             "iab_tier_3": [],
@@ -178,14 +148,9 @@ def sample_get_ai_topics_response():
             "iab_audience_tier_4": [],
             "iab_audience_tier_5": [],
             "google_topics": [],
-            "Marketing_items": []
+            "Marketing_items": [],
         },
-        "smart_tags": [
-            {
-                "ID": "123",
-                "name": "animals-group"
-            }
-        ]
+        "smart_tags": [{"ID": "123", "name": "animals-group"}],
     }
 
 
@@ -199,7 +164,7 @@ def sample_similar_article_data():
         "imageURL": "https://example.com/image1.jpg",
         "score": 0.123,
         "published": "2024-01-15",
-        "publicationID": "pub_id_1"
+        "publicationID": "pub_id_1",
     }
 
 
@@ -218,7 +183,7 @@ def sample_article_data():
         "publicationID": "pub_id_1",
         "articleURL": "https://www.articles.com/123",
         "imageURL": "https://www.images.com/123",
-        "includeInSim": "1"
+        "includeInSim": "1",
     }
 
 
@@ -228,5 +193,5 @@ def sample_training_tag_data():
     return {
         "articleID": "record_id_1",
         "tag": "tag_value_1",
-        "addedDate": "2020-10-25 08:45:55"
+        "addedDate": "2020-10-25 08:45:55",
     }

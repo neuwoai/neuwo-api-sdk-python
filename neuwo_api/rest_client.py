@@ -1,7 +1,8 @@
 """
 REST API client for Neuwo API.
 
-This module provides a client for analysis where content is provided directly as text.
+This module provides a client for analysis where content is provided
+directly as text.
 """
 
 from datetime import date
@@ -29,14 +30,18 @@ logger = get_logger(__name__)
 class NeuwoRestClient:
     """Client for Neuwo REST API endpoints.
 
-    REST endpoints operate over standard HTTP methods and use a REST API token passed as a query parameter.
-    REST endpoints are designed for server-side integration where content is provided directly as text.
-    The REST API serves publishers who want to enrich the data before publishing by analysing content.
+    REST endpoints operate over standard HTTP methods and use a REST
+    API token passed as a query parameter. REST endpoints are designed
+    for server-side integration where content is provided directly as
+    text. The REST API serves publishers who want to enrich the data
+    before publishing by analysing content.
     """
 
     DEFAULT_TIMEOUT = 60
 
-    def __init__(self, token: str, base_url: str, timeout: Optional[int] = None):
+    def __init__(
+        self, token: str, base_url: str, timeout: Optional[int] = None
+    ):
         """Initialize the REST API client.
 
         Args:
@@ -81,8 +86,8 @@ class NeuwoRestClient:
     ) -> requests.Response:
         """Retrieve AI-generated tags (raw response).
 
-        Returns the raw HTTP response without parsing. Useful for custom processing
-        or debugging.
+        Returns the raw HTTP response without parsing. Useful for custom
+        processing or debugging.
 
         Args:
             content: Text content to analyze (required)
@@ -92,10 +97,13 @@ class NeuwoRestClient:
             publication_id: Name of the publication
             headline: Headline associated with the content
             tag_limit: Maximum number of tags (max 25, default: 15)
-            tag_min_score: Minimum score threshold for tags (default: 0.1)
+            tag_min_score: Minimum score threshold for tags
+                (default: 0.1)
             marketing_limit: Maximum number of marketing categories
-            marketing_min_score: Minimum score threshold for marketing categories (default: 0.3)
-            include_in_sim: Whether to include in similarity model (default: True)
+            marketing_min_score: Minimum score threshold for marketing
+                categories (default: 0.3)
+            include_in_sim: Whether to include in similarity model
+                (default: True)
             article_url: URL of the article
 
         Returns:
@@ -138,7 +146,9 @@ class NeuwoRestClient:
         logger.info(f"Getting AI topics for content (length: {len(content)})")
 
         # Make request
-        return self._request_handler.request(method="POST", endpoint="/GetAiTopics", data=data)
+        return self._request_handler.request(
+            method="POST", endpoint="/GetAiTopics", data=data
+        )
 
     def get_ai_topics(
         self,
@@ -156,9 +166,10 @@ class NeuwoRestClient:
     ) -> GetAiTopicsResponse:
         """Retrieve AI-generated tags and classifications for text content.
 
-        Sends text content to Neuwo's REST API to obtain AI-generated tag classifications
-        including subject tags, brand safety, marketing categories (IAB taxonomies), and
-        smart tags. Optionally saves the article in the database if document_id is provided.
+        Sends text content to Neuwo's REST API to obtain AI-generated tag
+        classifications including subject tags, brand safety, marketing
+        categories (IAB taxonomies), and smart tags. Optionally saves the
+        article in the database if document_id is provided.
 
         Args:
             content: Text content to analyze (required)
@@ -167,14 +178,18 @@ class NeuwoRestClient:
             publication_id: Name of the publication
             headline: Headline associated with the content
             tag_limit: Maximum number of tags (max 25, default: 15)
-            tag_min_score: Minimum score threshold for tags (default: 0.1)
+            tag_min_score: Minimum score threshold for tags
+                (default: 0.1)
             marketing_limit: Maximum number of marketing categories
-            marketing_min_score: Minimum score threshold for marketing categories (default: 0.3)
-            include_in_sim: Whether to include in similarity model (default: True)
+            marketing_min_score: Minimum score threshold for marketing
+                categories (default: 0.3)
+            include_in_sim: Whether to include in similarity model
+                (default: True)
             article_url: URL of the article
 
         Returns:
-            GetAiTopicsResponse object containing tags, brand safety, marketing categories, and smart tags
+            GetAiTopicsResponse object containing tags, brand safety,
+            marketing categories, and smart tags
 
         Raises:
             ValidationError: If content is empty or invalid
@@ -205,7 +220,8 @@ class NeuwoRestClient:
         result = GetAiTopicsResponse.from_dict(response_data)
 
         logger.info(
-            f"Retrieved {len(result.tags)} tags and {len(result.smart_tags)} smart tags"
+            f"Retrieved {len(result.tags)} tags and "
+            f"{len(result.smart_tags)} smart tags"
         )
 
         return result
@@ -226,7 +242,8 @@ class NeuwoRestClient:
             document_id: Unique identifier of the document/article (required)
             format: Response format ("json" or "xml", default: "json")
             max_rows: Limit how many similar articles are returned
-            past_days: Limit search by ignoring articles older than specified days
+            past_days: Limit search by ignoring articles older than
+                specified days
             publication_ids: List of publication IDs to filter results
 
         Returns:
@@ -251,7 +268,9 @@ class NeuwoRestClient:
         logger.info(f"Getting similar articles for document: {document_id}")
 
         # Make request
-        return self._request_handler.request(method="GET", endpoint="/GetSimilar", params=params)
+        return self._request_handler.request(
+            method="GET", endpoint="/GetSimilar", params=params
+        )
 
     def get_similar(
         self,
@@ -262,17 +281,20 @@ class NeuwoRestClient:
     ) -> List[SimilarArticle]:
         """Find articles similar to the specified document.
 
-        Returns a list of similar articles with metadata including articleID, headline,
-        articleURL, imageURL, similarity score, publication date, and publication ID.
-        The score is a distance-type metric where lower values indicate better similarity.
+        Returns a list of similar articles with metadata including
+        articleID, headline, articleURL, imageURL, similarity score,
+        publication date, and publication ID. The score is a distance-type
+        metric where lower values indicate better similarity.
 
-        The similarity model is created with the customer's own history data and is
-        customer-specific. Customer's own history is used to return the similar article predictions.
+        The similarity model is created with the customer's own history
+        data and is customer-specific. Customer's own history is used to
+        return the similar article predictions.
 
         Args:
             document_id: Unique identifier of the document/article (required)
             max_rows: Limit how many similar articles are returned
-            past_days: Limit search by ignoring articles older than specified days
+            past_days: Limit search by ignoring articles older than
+                specified days
             publication_ids: List of publication IDs to filter results
 
         Returns:
@@ -297,10 +319,14 @@ class NeuwoRestClient:
 
         # Convert to models
         if not isinstance(response_data, list):
-            logger.warning(f"Expected list response, got: {type(response_data)}")
+            logger.warning(
+                f"Expected list response, got: {type(response_data)}"
+            )
             return []
 
-        similar_articles = [SimilarArticle.from_dict(item) for item in response_data]
+        similar_articles = [
+            SimilarArticle.from_dict(item) for item in response_data
+        ]
 
         logger.info(f"Found {len(similar_articles)} similar articles")
 
@@ -397,9 +423,10 @@ class NeuwoRestClient:
     ) -> Article:
         """Update article fields in the database.
 
-        This endpoint can only be used with articles that were assigned a document_id
-        when analyzing with get_ai_topics(). Only fields provided in the request
-        will be updated. Returns the updated article with all fields.
+        This endpoint can only be used with articles that were assigned
+        a document_id when analyzing with get_ai_topics(). Only fields
+        provided in the request will be updated. Returns the updated
+        article with all fields.
 
         Args:
             document_id: Unique identifier of the document/article (required)
@@ -477,10 +504,14 @@ class NeuwoRestClient:
         # Prepare form data
         data = {"documentid": document_id, "tags": tags, "format": format}
 
-        logger.info(f"Adding {len(tags)} training tags to article: {document_id}")
+        logger.info(
+            f"Adding {len(tags)} training tags to article: {document_id}"
+        )
 
         # Make request
-        return self._request_handler.request(method="POST", endpoint="/TrainAiTopics", data=data)
+        return self._request_handler.request(
+            method="POST", endpoint="/TrainAiTopics", data=data
+        )
 
     def train_ai_topics(
         self,
@@ -490,8 +521,9 @@ class NeuwoRestClient:
         """Save training tags for an article.
 
         Saves a list of training tags for an article in the database.
-        Returns all newly added TrainingTags (tags that weren't already in the database).
-        If all tags already exist, returns an empty list.
+        Returns all newly added TrainingTags (tags that weren't already
+        in the database). If all tags already exist, returns an empty
+        list.
 
         Args:
             document_id: Unique identifier of the document/article (required)
@@ -516,7 +548,9 @@ class NeuwoRestClient:
 
         # Convert to models
         if not isinstance(response_data, list):
-            logger.warning(f"Expected list response, got: {type(response_data)}")
+            logger.warning(
+                f"Expected list response, got: {type(response_data)}"
+            )
             return []
 
         training_tags = [TrainingTag.from_dict(item) for item in response_data]

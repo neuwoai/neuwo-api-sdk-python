@@ -58,7 +58,9 @@ class TagParent:
         # Handle both uppercase URI and lowercase uri
         uri_value = level_data.get("URI") or level_data.get("uri")
         if not uri_value:
-            raise ValueError("TagParent data must contain either 'URI' or 'uri' field")
+            raise ValueError(
+                "TagParent data must contain either 'URI' or 'uri' field"
+            )
         return cls(level=level, value=level_data["value"], uri=uri_value)
 
     def to_dict(self) -> Dict[str, Dict[str, str]]:
@@ -102,7 +104,9 @@ class Tag:
         # Handle both uppercase URI and lowercase uri
         uri_value = data.get("URI") or data.get("uri")
         if not uri_value:
-            raise ValueError("Tag data must contain either 'URI' or 'uri' field")
+            raise ValueError(
+                "Tag data must contain either 'URI' or 'uri' field"
+            )
 
         parents = []
         if "parents" in data and data["parents"]:
@@ -117,7 +121,11 @@ class Tag:
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert Tag to dictionary."""
-        result = {"URI": self.uri, "value": self.value, "score": str(self.score)}
+        result = {
+            "URI": self.uri,
+            "value": self.value,
+            "score": str(self.score),
+        }
         if self.parents:
             result["parents"] = [
                 [parent.to_dict() for parent in parent_group]
@@ -159,7 +167,9 @@ class BrandSafetyTag:
         if "BS_score" in data and "BS_indication" in data:
             return cls(
                 score=float(data["BS_score"]),
-                indication=BrandSafetyIndication.from_string(data["BS_indication"]),
+                indication=BrandSafetyIndication.from_string(
+                    data["BS_indication"]
+                ),
             )
         # Try lowercase variant (score, indication)
         elif "score" in data and "indication" in data:
@@ -168,15 +178,22 @@ class BrandSafetyTag:
 
             # Handle boolean indication
             if isinstance(indication_value, bool):
-                indication = BrandSafetyIndication.YES if indication_value else BrandSafetyIndication.NO
+                indication = (
+                    BrandSafetyIndication.YES
+                    if indication_value
+                    else BrandSafetyIndication.NO
+                )
             else:
                 # Handle string indication
-                indication = BrandSafetyIndication.from_string(str(indication_value))
+                indication = BrandSafetyIndication.from_string(
+                    str(indication_value)
+                )
 
             return cls(score=score_value, indication=indication)
         else:
             raise ValueError(
-                "BrandSafetyTag data must contain either (BS_score, BS_indication) or (score, indication) fields"
+                "BrandSafetyTag data must contain either (BS_score, "
+                "BS_indication) or (score, indication) fields"
             )
 
     def to_dict(self) -> Dict[str, Any]:
@@ -214,12 +231,18 @@ class TaxonomyArticle:
             TaxonomyArticle instance
         """
         return cls(
-            id=data["ID"], label=data["label"], relevance=float(data["relevance"])
+            id=data["ID"],
+            label=data["label"],
+            relevance=float(data["relevance"]),
         )
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert TaxonomyArticle to dictionary."""
-        return {"ID": self.id, "label": self.label, "relevance": str(self.relevance)}
+        return {
+            "ID": self.id,
+            "label": self.label,
+            "relevance": str(self.relevance),
+        }
 
 
 @dataclass
@@ -258,13 +281,16 @@ class MarketingCategories:
         """
         return cls(
             iab_tier_1=[
-                TaxonomyArticle.from_dict(item) for item in data.get("iab_tier_1", [])
+                TaxonomyArticle.from_dict(item)
+                for item in data.get("iab_tier_1", [])
             ],
             iab_tier_2=[
-                TaxonomyArticle.from_dict(item) for item in data.get("iab_tier_2", [])
+                TaxonomyArticle.from_dict(item)
+                for item in data.get("iab_tier_2", [])
             ],
             iab_tier_3=[
-                TaxonomyArticle.from_dict(item) for item in data.get("iab_tier_3", [])
+                TaxonomyArticle.from_dict(item)
+                for item in data.get("iab_tier_3", [])
             ],
             iab_audience_tier_3=[
                 TaxonomyArticle.from_dict(item)
@@ -304,7 +330,9 @@ class MarketingCategories:
                 item.to_dict() for item in self.iab_audience_tier_5
             ],
             "google_topics": [item.to_dict() for item in self.google_topics],
-            "Marketing_items": [item.to_dict() for item in self.marketing_items],
+            "Marketing_items": [
+                item.to_dict() for item in self.marketing_items
+            ],
         }
 
 
@@ -363,7 +391,11 @@ class TrainingTag:
         """
         # Parse datetime string (format: YYYY-MM-DD hh:mm:ss)
         added_date = datetime.strptime(data["addedDate"], "%Y-%m-%d %H:%M:%S")
-        return cls(article_id=data["articleID"], tag=data["tag"], added_date=added_date)
+        return cls(
+            article_id=data["articleID"],
+            tag=data["tag"],
+            added_date=added_date,
+        )
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert TrainingTag to dictionary."""
@@ -454,7 +486,8 @@ class Article:
         publication_id: Name of the publication (optional)
         article_url: URL of the article (optional)
         image_url: URL of the main image (optional)
-        include_in_sim: Whether article is included in similarity model (optional)
+        include_in_sim: Whether article is included in similarity model
+            (optional)
     """
 
     article_id: str
@@ -573,15 +606,19 @@ class GetAiTopicsResponse:
         """
         return cls(
             tags=[Tag.from_dict(tag) for tag in data.get("tags", [])],
-            brand_safety=BrandSafetyTag.from_dict(data["brand_safety"])
-            if "brand_safety" in data
-            else None,
-            marketing_categories=MarketingCategories.from_dict(
-                data["marketing_categories"]
-            )
-            if "marketing_categories" in data
-            else None,
-            smart_tags=[SmartTag.from_dict(tag) for tag in data.get("smart_tags", [])],
+            brand_safety=(
+                BrandSafetyTag.from_dict(data["brand_safety"])
+                if "brand_safety" in data
+                else None
+            ),
+            marketing_categories=(
+                MarketingCategories.from_dict(data["marketing_categories"])
+                if "marketing_categories" in data
+                else None
+            ),
+            smart_tags=[
+                SmartTag.from_dict(tag) for tag in data.get("smart_tags", [])
+            ],
             url=data.get("url"),
         )
 
@@ -595,7 +632,9 @@ class GetAiTopicsResponse:
         if self.brand_safety:
             result["brand_safety"] = self.brand_safety.to_dict()
         if self.marketing_categories:
-            result["marketing_categories"] = self.marketing_categories.to_dict()
+            result["marketing_categories"] = (
+                self.marketing_categories.to_dict()
+            )
         if self.url:
             result["url"] = self.url
 

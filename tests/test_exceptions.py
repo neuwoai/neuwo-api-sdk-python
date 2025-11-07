@@ -80,7 +80,9 @@ class TestValidationError:
                 "type": "value_error.missing",
             }
         ]
-        error = ValidationError("Validation failed", validation_details=details)
+        error = ValidationError(
+            "Validation failed", validation_details=details
+        )
         assert error.validation_details == details
         error_str = str(error)
         assert "Validation failed" in error_str
@@ -150,7 +152,9 @@ class TestContentNotAvailableError:
         assert error.url == "https://example.com"
 
     def test_with_url_and_message(self):
-        error = ContentNotAvailableError(message="Custom error", url="https://example.com")
+        error = ContentNotAvailableError(
+            message="Custom error", url="https://example.com"
+        )
         assert str(error) == "Custom error"
         assert error.url == "https://example.com"
 

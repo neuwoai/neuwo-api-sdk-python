@@ -86,7 +86,9 @@ def parse_json_response(response: requests.Response) -> Dict[str, Any]:
             error_message = data["error"]
             url = data.get("url")
 
-            logger.error(f"API returned error in response body: {error_message}")
+            logger.error(
+                f"API returned error in response body: {error_message}"
+            )
             raise ContentNotAvailableError(message=error_message, url=url)
 
         return data
@@ -145,7 +147,9 @@ class RequestHandler:
         self.timeout = timeout
         self._logger = get_logger(__name__)
 
-    def _build_url(self, endpoint: str, params: Optional[Dict[str, Any]] = None) -> str:
+    def _build_url(
+        self, endpoint: str, params: Optional[Dict[str, Any]] = None
+    ) -> str:
         """Build full URL with query parameters including token.
 
         Args:
@@ -182,9 +186,13 @@ class RequestHandler:
                     if isinstance(value, list):
                         # For arrays, repeat the parameter name
                         for item in value:
-                            query_params.append(f"{quote(str(key))}={quote(str(item))}")
+                            query_params.append(
+                                f"{quote(str(key))}={quote(str(item))}"
+                            )
                     else:
-                        query_params.append(f"{quote(str(key))}={quote(str(value))}")
+                        query_params.append(
+                            f"{quote(str(key))}={quote(str(value))}"
+                        )
 
         query_string = "&".join(query_params)
 
@@ -242,16 +250,18 @@ class RequestHandler:
 
     @staticmethod
     def handle_api_error(response: requests.Response) -> NeuwoAPIError:
-        """Handle API error responses by parsing and creating appropriate exceptions.
+        """Handle API error responses and create appropriate exceptions.
 
-        Parses the error response, extracts relevant error information, and maps
-        HTTP status codes to specific exception types for better error handling.
+        Parses the error response, extracts relevant error information,
+        and maps HTTP status codes to specific exception types for better
+        error handling.
 
         Args:
             response: HTTP response object with status code >= 400
 
         Returns:
-            Appropriate exception instance based on the status code and error content
+            Appropriate exception instance based on the status code and
+            error content
         """
         status_code = response.status_code
         response_text = response.text
@@ -266,9 +276,8 @@ class RequestHandler:
             if response_text and len(response_text) < 500:
                 detail = response_text
 
-        logger.error(
-            f"API error {status_code}: {error_data if error_data else response_text[:500]}"
-        )
+        error_msg = error_data if error_data else response_text[:500]
+        logger.error(f"API error {status_code}: {error_msg}")
 
         # Extract message from response
         message = None
@@ -327,12 +336,16 @@ class RequestHandler:
         elif status_code == 429:
             # Extract retry_after from headers if present
             retry_after = None
-            if hasattr(response, "headers") and "Retry-After" in response.headers:
+            if (
+                hasattr(response, "headers")
+                and "Retry-After" in response.headers
+            ):
                 try:
                     retry_after = int(response.headers["Retry-After"])
                 except (ValueError, TypeError):
+                    retry_val = response.headers["Retry-After"]
                     logger.debug(
-                        f"Could not parse Retry-After header: {response.headers['Retry-After']}"
+                        f"Could not parse Retry-After header: {retry_val}"
                     )
             return RateLimitError(message, retry_after)
         elif status_code >= 500:
@@ -374,7 +387,9 @@ class RequestHandler:
         encoded_data = None
         if data is not None:
             if "Content-Type" not in request_headers:
-                request_headers["Content-Type"] = "application/x-www-form-urlencoded"
+                request_headers["Content-Type"] = (
+                    "application/x-www-form-urlencoded"
+                )
             encoded_data = self.encode_form_data(data)
 
         self._logger.debug(f"Making {method} request to {url}")
@@ -398,7 +413,9 @@ class RequestHandler:
 
         except requests.exceptions.Timeout as e:
             self._logger.error(f"Request timeout after {self.timeout} seconds")
-            raise NetworkError(f"Request timeout after {self.timeout} seconds", e)
+            raise NetworkError(
+                f"Request timeout after {self.timeout} seconds", e
+            )
         except requests.exceptions.ConnectionError as e:
             self._logger.error(f"Connection error: {e}")
             raise NetworkError("Failed to connect to API server", e)

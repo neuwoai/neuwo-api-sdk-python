@@ -66,8 +66,12 @@ class TestParseJsonResponse:
 
     def test_json_with_error_field(self):
         mock_response = Mock()
-        mock_response.text = '{"error": "Tagging not created", "url": "https://example.com"}'
-        with pytest.raises(ContentNotAvailableError, match="Tagging not created"):
+        mock_response.text = (
+            '{"error": "Tagging not created", "url": "https://example.com"}'
+        )
+        with pytest.raises(
+            ContentNotAvailableError, match="Tagging not created"
+        ):
             parse_json_response(mock_response)
 
     def test_invalid_json(self):
@@ -104,7 +108,9 @@ class TestRequestHandler:
     # Initialization tests
     def test_init_basic(self):
         """Test basic initialization."""
-        handler = RequestHandler(token="test-token", base_url="https://api.test.com")
+        handler = RequestHandler(
+            token="test-token", base_url="https://api.test.com"
+        )
         assert handler.token == "test-token"
         assert handler.base_url == "https://api.test.com"
         assert handler.timeout == 60
@@ -118,7 +124,9 @@ class TestRequestHandler:
 
     def test_init_strips_trailing_slash(self):
         """Test that trailing slash is removed from base_url."""
-        handler = RequestHandler(token="test-token", base_url="https://api.test.com/")
+        handler = RequestHandler(
+            token="test-token", base_url="https://api.test.com/"
+        )
         assert handler.base_url == "https://api.test.com"
 
     # _encode_value tests
@@ -142,14 +150,18 @@ class TestRequestHandler:
     # encode_form_data tests
     def test_encode_form_data_simple(self):
         """Test encoding simple form data."""
-        handler = RequestHandler(token="test-token", base_url="https://api.test.com")
+        handler = RequestHandler(
+            token="test-token", base_url="https://api.test.com"
+        )
         data = {"key": "value"}
         result = handler.encode_form_data(data)
         assert result == "key=value"
 
     def test_encode_form_data_multiple_fields(self):
         """Test encoding multiple form fields."""
-        handler = RequestHandler(token="test-token", base_url="https://api.test.com")
+        handler = RequestHandler(
+            token="test-token", base_url="https://api.test.com"
+        )
         data = {"key1": "value1", "key2": "value2"}
         result = handler.encode_form_data(data)
         assert "key1=value1" in result
@@ -157,7 +169,9 @@ class TestRequestHandler:
 
     def test_encode_form_data_boolean(self):
         """Test encoding boolean values."""
-        handler = RequestHandler(token="test-token", base_url="https://api.test.com")
+        handler = RequestHandler(
+            token="test-token", base_url="https://api.test.com"
+        )
         data = {"flag": True, "disabled": False}
         result = handler.encode_form_data(data)
         assert "flag=true" in result
@@ -165,7 +179,9 @@ class TestRequestHandler:
 
     def test_encode_form_data_list_values(self):
         """Test encoding list values."""
-        handler = RequestHandler(token="test-token", base_url="https://api.test.com")
+        handler = RequestHandler(
+            token="test-token", base_url="https://api.test.com"
+        )
         data = {"tags": ["tag1", "tag2"]}
         result = handler.encode_form_data(data)
         assert "tags=tag1" in result
@@ -173,7 +189,9 @@ class TestRequestHandler:
 
     def test_encode_form_data_none_values_filtered(self):
         """Test that None values are filtered out."""
-        handler = RequestHandler(token="test-token", base_url="https://api.test.com")
+        handler = RequestHandler(
+            token="test-token", base_url="https://api.test.com"
+        )
         data = {"key1": "value1", "key2": None}
         result = handler.encode_form_data(data)
         assert "key1=value1" in result
@@ -181,7 +199,9 @@ class TestRequestHandler:
 
     def test_encode_form_data_none_in_list_filtered(self):
         """Test that None values in lists are filtered out."""
-        handler = RequestHandler(token="test-token", base_url="https://api.test.com")
+        handler = RequestHandler(
+            token="test-token", base_url="https://api.test.com"
+        )
         data = {"tags": ["tag1", None, "tag2"]}
         result = handler.encode_form_data(data)
         assert "tags=tag1" in result
@@ -191,7 +211,9 @@ class TestRequestHandler:
 
     def test_encode_form_data_empty_dict(self):
         """Test encoding empty dictionary."""
-        handler = RequestHandler(token="test-token", base_url="https://api.test.com")
+        handler = RequestHandler(
+            token="test-token", base_url="https://api.test.com"
+        )
         data = {}
         result = handler.encode_form_data(data)
         assert result == ""
@@ -199,7 +221,9 @@ class TestRequestHandler:
     # _build_url tests
     def test_build_url_simple(self):
         """Test URL building with simple parameters."""
-        handler = RequestHandler(token="test-token", base_url="https://api.test.com")
+        handler = RequestHandler(
+            token="test-token", base_url="https://api.test.com"
+        )
         url = handler._build_url("/test", {"key": "value"})
         assert "https://api.test.com/test" in url
         assert "token=test-token" in url
@@ -207,7 +231,9 @@ class TestRequestHandler:
 
     def test_build_url_with_list_params(self):
         """Test URL building with list parameters."""
-        handler = RequestHandler(token="test-token", base_url="https://api.test.com")
+        handler = RequestHandler(
+            token="test-token", base_url="https://api.test.com"
+        )
         url = handler._build_url("/test", {"ids": ["id1", "id2"]})
         assert "ids=id1" in url
         assert "ids=id2" in url
@@ -215,27 +241,35 @@ class TestRequestHandler:
 
     def test_build_url_filters_none_values(self):
         """Test that None values are filtered out."""
-        handler = RequestHandler(token="test-token", base_url="https://api.test.com")
+        handler = RequestHandler(
+            token="test-token", base_url="https://api.test.com"
+        )
         url = handler._build_url("/test", {"key1": "value1", "key2": None})
         assert "key1=value1" in url
         assert "key2" not in url
 
     def test_build_url_encodes_special_chars(self):
         """Test URL encoding of special characters."""
-        handler = RequestHandler(token="test-token", base_url="https://api.test.com")
+        handler = RequestHandler(
+            token="test-token", base_url="https://api.test.com"
+        )
         url = handler._build_url("/test", {"key": "value with spaces"})
         assert "value%20with%20spaces" in url
 
     def test_build_url_no_params(self):
         """Test URL building without additional parameters."""
-        handler = RequestHandler(token="test-token", base_url="https://api.test.com")
+        handler = RequestHandler(
+            token="test-token", base_url="https://api.test.com"
+        )
         url = handler._build_url("/test")
         assert "https://api.test.com/test" in url
         assert "token=test-token" in url
 
     def test_build_url_endpoint_without_slash(self):
         """Test URL building when endpoint doesn't start with /."""
-        handler = RequestHandler(token="test-token", base_url="https://api.test.com")
+        handler = RequestHandler(
+            token="test-token", base_url="https://api.test.com"
+        )
         url = handler._build_url("test", {"key": "value"})
         assert "https://api.test.com/test" in url
 
@@ -264,7 +298,9 @@ class TestRequestHandler:
         mock_response.text = '{"result": "success"}'
         mock_request.return_value = mock_response
 
-        handler = RequestHandler(token="test-token", base_url="https://api.test.com")
+        handler = RequestHandler(
+            token="test-token", base_url="https://api.test.com"
+        )
         response = handler.request("GET", "/test", params={"key": "value"})
 
         assert response.status_code == 200
@@ -283,13 +319,20 @@ class TestRequestHandler:
         mock_response.status_code = 200
         mock_request.return_value = mock_response
 
-        handler = RequestHandler(token="test-token", base_url="https://api.test.com")
-        handler.request("POST", "/test", data={"content": "test", "flag": True})
+        handler = RequestHandler(
+            token="test-token", base_url="https://api.test.com"
+        )
+        handler.request(
+            "POST", "/test", data={"content": "test", "flag": True}
+        )
 
         call_args = mock_request.call_args
         assert "content=test" in call_args[1]["data"]
         assert "flag=true" in call_args[1]["data"]
-        assert call_args[1]["headers"]["Content-Type"] == "application/x-www-form-urlencoded"
+        assert (
+            call_args[1]["headers"]["Content-Type"]
+            == "application/x-www-form-urlencoded"
+        )
         assert call_args[1]["method"] == "POST"
 
     @patch("neuwo_api.utils.requests.request")
@@ -299,7 +342,9 @@ class TestRequestHandler:
         mock_response.status_code = 200
         mock_request.return_value = mock_response
 
-        handler = RequestHandler(token="test-token", base_url="https://api.test.com")
+        handler = RequestHandler(
+            token="test-token", base_url="https://api.test.com"
+        )
         custom_headers = {"X-Custom-Header": "custom-value"}
         handler.request("GET", "/test", headers=custom_headers)
 
@@ -313,9 +358,13 @@ class TestRequestHandler:
         mock_response.status_code = 200
         mock_request.return_value = mock_response
 
-        handler = RequestHandler(token="test-token", base_url="https://api.test.com")
+        handler = RequestHandler(
+            token="test-token", base_url="https://api.test.com"
+        )
         headers = {"Content-Type": "application/json"}
-        handler.request("POST", "/test", data={"key": "value"}, headers=headers)
+        handler.request(
+            "POST", "/test", data={"key": "value"}, headers=headers
+        )
 
         call_args = mock_request.call_args
         # Custom Content-Type should be preserved
@@ -328,7 +377,9 @@ class TestRequestHandler:
         mock_response.status_code = 200
         mock_request.return_value = mock_response
 
-        handler = RequestHandler(token="test-token", base_url="https://api.test.com")
+        handler = RequestHandler(
+            token="test-token", base_url="https://api.test.com"
+        )
         handler.request("PUT", "/test", data={"key": "value"})
 
         call_args = mock_request.call_args
@@ -357,7 +408,9 @@ class TestRequestHandler:
         mock_response.json.return_value = {"message": "Unauthorised"}
         mock_request.return_value = mock_response
 
-        handler = RequestHandler(token="test-token", base_url="https://api.test.com")
+        handler = RequestHandler(
+            token="test-token", base_url="https://api.test.com"
+        )
 
         with pytest.raises(AuthenticationError):
             handler.request("GET", "/test")
@@ -385,7 +438,9 @@ class TestRequestHandler:
 
         mock_request.side_effect = requests.exceptions.ConnectionError()
 
-        handler = RequestHandler(token="test-token", base_url="https://api.test.com")
+        handler = RequestHandler(
+            token="test-token", base_url="https://api.test.com"
+        )
 
         from neuwo_api.exceptions import NetworkError
 
@@ -397,9 +452,13 @@ class TestRequestHandler:
         """Test generic request exception handling."""
         import requests
 
-        mock_request.side_effect = requests.exceptions.RequestException("Generic error")
+        mock_request.side_effect = requests.exceptions.RequestException(
+            "Generic error"
+        )
 
-        handler = RequestHandler(token="test-token", base_url="https://api.test.com")
+        handler = RequestHandler(
+            token="test-token", base_url="https://api.test.com"
+        )
 
         from neuwo_api.exceptions import NetworkError
 
@@ -410,7 +469,9 @@ class TestRequestHandler:
         """Tests for handle_api_error static method."""
 
         @staticmethod
-        def create_mock_response(status_code: int, json_data: dict, headers: dict = None):
+        def create_mock_response(
+            status_code: int, json_data: dict, headers: dict = None
+        ):
             """Helper to create a mock response."""
             mock_response = Mock()
             mock_response.status_code = status_code
@@ -419,13 +480,17 @@ class TestRequestHandler:
             return mock_response
 
         def test_400_error(self):
-            response = self.create_mock_response(400, {"message": "Bad request"})
+            response = self.create_mock_response(
+                400, {"message": "Bad request"}
+            )
             error = RequestHandler.handle_api_error(response)
             assert isinstance(error, BadRequestError)
             assert "Bad request" in str(error)
 
         def test_401_error(self):
-            response = self.create_mock_response(401, {"message": "Unauthorised"})
+            response = self.create_mock_response(
+                401, {"message": "Unauthorised"}
+            )
             error = RequestHandler.handle_api_error(response)
             assert isinstance(error, AuthenticationError)
 
@@ -440,12 +505,16 @@ class TestRequestHandler:
             assert isinstance(error, NotFoundError)
 
         def test_404_no_data_available(self):
-            response = self.create_mock_response(404, {"detail": "No data yet available"})
+            response = self.create_mock_response(
+                404, {"detail": "No data yet available"}
+            )
             error = RequestHandler.handle_api_error(response)
             assert isinstance(error, NoDataAvailableError)
 
         def test_422_error(self):
-            response = self.create_mock_response(422, {"detail": "Validation error"})
+            response = self.create_mock_response(
+                422, {"detail": "Validation error"}
+            )
             error = RequestHandler.handle_api_error(response)
             assert isinstance(error, ValidationError)
 
@@ -457,7 +526,9 @@ class TestRequestHandler:
             assert error.validation_details == details
 
         def test_429_error(self):
-            response = self.create_mock_response(429, {"message": "Rate limit exceeded"})
+            response = self.create_mock_response(
+                429, {"message": "Rate limit exceeded"}
+            )
             error = RequestHandler.handle_api_error(response)
             assert isinstance(error, RateLimitError)
             assert "Rate limit exceeded" in str(error)
@@ -477,7 +548,9 @@ class TestRequestHandler:
         def test_429_error_with_invalid_retry_after_header(self):
             mock_response = Mock()
             mock_response.status_code = 429
-            mock_response.json.return_value = {"message": "Rate limit exceeded"}
+            mock_response.json.return_value = {
+                "message": "Rate limit exceeded"
+            }
             mock_response.headers = {"Retry-After": "invalid"}
 
             error = RequestHandler.handle_api_error(mock_response)
@@ -485,31 +558,41 @@ class TestRequestHandler:
             assert error.retry_after is None
 
         def test_429_error_without_retry_after_header(self):
-            response = self.create_mock_response(429, {"message": "Rate limit exceeded"})
+            response = self.create_mock_response(
+                429, {"message": "Rate limit exceeded"}
+            )
             error = RequestHandler.handle_api_error(response)
             assert isinstance(error, RateLimitError)
             assert error.retry_after is None
 
         def test_500_error(self):
-            response = self.create_mock_response(500, {"message": "Server error"})
+            response = self.create_mock_response(
+                500, {"message": "Server error"}
+            )
             error = RequestHandler.handle_api_error(response)
             assert isinstance(error, ServerError)
             assert error.status_code == 500
 
         def test_503_error(self):
-            response = self.create_mock_response(503, {"message": "Service unavailable"})
+            response = self.create_mock_response(
+                503, {"message": "Service unavailable"}
+            )
             error = RequestHandler.handle_api_error(response)
             assert isinstance(error, ServerError)
             assert error.status_code == 503
 
         def test_error_with_detail_field(self):
-            response = self.create_mock_response(400, {"detail": "Invalid parameter"})
+            response = self.create_mock_response(
+                400, {"detail": "Invalid parameter"}
+            )
             error = RequestHandler.handle_api_error(response)
             assert isinstance(error, BadRequestError)
             assert "Invalid parameter" in str(error)
 
         def test_error_with_error_field(self):
-            response = self.create_mock_response(400, {"error": "Something went wrong"})
+            response = self.create_mock_response(
+                400, {"error": "Something went wrong"}
+            )
             error = RequestHandler.handle_api_error(response)
             assert isinstance(error, BadRequestError)
             assert "Something went wrong" in str(error)
@@ -525,7 +608,9 @@ class TestRequestHandler:
             assert "Internal Server Error" in str(error)
 
         def test_unhandled_status_code(self):
-            response = self.create_mock_response(418, {"message": "I'm a teapot"})
+            response = self.create_mock_response(
+                418, {"message": "I'm a teapot"}
+            )
             error = RequestHandler.handle_api_error(response)
             assert isinstance(error, NeuwoAPIError)
             assert error.status_code == 418

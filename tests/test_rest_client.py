@@ -15,13 +15,17 @@ class TestNeuwoRestClientInit:
     """Tests for NeuwoRestClient initialization."""
 
     def test_init_with_token(self):
-        client = NeuwoRestClient(token="test-token", base_url="https://custom.api.com")
+        client = NeuwoRestClient(
+            token="test-token", base_url="https://custom.api.com"
+        )
         assert client._request_handler.token == "test-token"
         assert client._request_handler.base_url == "https://custom.api.com"
         assert client._request_handler.timeout == 60
 
     def test_init_with_custom_base_url(self):
-        client = NeuwoRestClient(token="test-token", base_url="https://custom.api.com")
+        client = NeuwoRestClient(
+            token="test-token", base_url="https://custom.api.com"
+        )
         assert client._request_handler.base_url == "https://custom.api.com"
 
     def test_init_with_custom_timeout(self):
@@ -45,7 +49,9 @@ class TestNeuwoRestClientInit:
         assert client._request_handler.token == "test-token"
 
     def test_init_strips_base_url_slash(self):
-        client = NeuwoRestClient(token="test-token", base_url="https://custom.api.com/")
+        client = NeuwoRestClient(
+            token="test-token", base_url="https://custom.api.com/"
+        )
         assert client._request_handler.base_url == "https://custom.api.com"
 
 
@@ -53,15 +59,21 @@ class TestGetAiTopics:
     """Tests for get_ai_topics methods."""
 
     @patch("neuwo_api.utils.RequestHandler.request")
-    def test_get_ai_topics_success(self, mock_request, sample_get_ai_topics_response):
+    def test_get_ai_topics_success(
+        self, mock_request, sample_get_ai_topics_response
+    ):
         # Setup mock
         mock_response = Mock()
         mock_response.status_code = 200
-        mock_response.text = str(sample_get_ai_topics_response).replace("'", '"')
+        mock_response.text = str(sample_get_ai_topics_response).replace(
+            "'", '"'
+        )
         mock_request.return_value = mock_response
 
         # Create client and call method
-        client = NeuwoRestClient(token="test-token", base_url="https://custom.api.com")
+        client = NeuwoRestClient(
+            token="test-token", base_url="https://custom.api.com"
+        )
 
         with patch(
             "neuwo_api.rest_client.parse_json_response",
@@ -83,7 +95,9 @@ class TestGetAiTopics:
         mock_response.text = "{}"
         mock_request.return_value = mock_response
 
-        client = NeuwoRestClient(token="test-token", base_url="https://custom.api.com")
+        client = NeuwoRestClient(
+            token="test-token", base_url="https://custom.api.com"
+        )
 
         with patch(
             "neuwo_api.rest_client.parse_json_response",
@@ -110,12 +124,16 @@ class TestGetAiTopics:
         assert call_args[1]["data"]["tag_limit"] == 20
 
     def test_get_ai_topics_empty_content(self):
-        client = NeuwoRestClient(token="test-token", base_url="https://custom.api.com")
+        client = NeuwoRestClient(
+            token="test-token", base_url="https://custom.api.com"
+        )
         with pytest.raises(ValidationError, match="non-empty string"):
             client.get_ai_topics(content="")
 
     def test_get_ai_topics_whitespace_only(self):
-        client = NeuwoRestClient(token="test-token", base_url="https://custom.api.com")
+        client = NeuwoRestClient(
+            token="test-token", base_url="https://custom.api.com"
+        )
         with pytest.raises(ValidationError, match="whitespace"):
             client.get_ai_topics(content="   ")
 
@@ -125,7 +143,9 @@ class TestGetAiTopics:
         mock_response.status_code = 200
         mock_request.return_value = mock_response
 
-        client = NeuwoRestClient(token="test-token", base_url="https://custom.api.com")
+        client = NeuwoRestClient(
+            token="test-token", base_url="https://custom.api.com"
+        )
         result = client.get_ai_topics_raw(content="Test content")
 
         assert result == mock_response
@@ -136,13 +156,17 @@ class TestGetSimilar:
     """Tests for get_similar methods."""
 
     @patch("neuwo_api.utils.RequestHandler.request")
-    def test_get_similar_success(self, mock_request, sample_similar_article_data):
+    def test_get_similar_success(
+        self, mock_request, sample_similar_article_data
+    ):
         mock_response = Mock()
         mock_response.status_code = 200
         mock_response.text = "[]"
         mock_request.return_value = mock_response
 
-        client = NeuwoRestClient(token="test-token", base_url="https://custom.api.com")
+        client = NeuwoRestClient(
+            token="test-token", base_url="https://custom.api.com"
+        )
 
         with patch(
             "neuwo_api.rest_client.parse_json_response",
@@ -160,9 +184,13 @@ class TestGetSimilar:
         mock_response.status_code = 200
         mock_request.return_value = mock_response
 
-        client = NeuwoRestClient(token="test-token", base_url="https://custom.api.com")
+        client = NeuwoRestClient(
+            token="test-token", base_url="https://custom.api.com"
+        )
 
-        with patch("neuwo_api.rest_client.parse_json_response", return_value=[]):
+        with patch(
+            "neuwo_api.rest_client.parse_json_response", return_value=[]
+        ):
             client.get_similar(
                 document_id="doc123",
                 max_rows=10,
@@ -182,7 +210,9 @@ class TestGetSimilar:
         mock_response.status_code = 200
         mock_request.return_value = mock_response
 
-        client = NeuwoRestClient(token="test-token", base_url="https://custom.api.com")
+        client = NeuwoRestClient(
+            token="test-token", base_url="https://custom.api.com"
+        )
         result = client.get_similar_raw(document_id="doc123")
 
         assert result == mock_response
@@ -198,7 +228,9 @@ class TestUpdateArticle:
         mock_response.text = "{}"
         mock_request.return_value = mock_response
 
-        client = NeuwoRestClient(token="test-token", base_url="https://custom.api.com")
+        client = NeuwoRestClient(
+            token="test-token", base_url="https://custom.api.com"
+        )
 
         with patch(
             "neuwo_api.rest_client.parse_json_response",
@@ -218,12 +250,16 @@ class TestUpdateArticle:
         assert "/UpdateArticle/doc123" in call_kwargs.get("endpoint", "")
 
     @patch("neuwo_api.utils.RequestHandler.request")
-    def test_update_article_all_fields(self, mock_request, sample_article_data):
+    def test_update_article_all_fields(
+        self, mock_request, sample_article_data
+    ):
         mock_response = Mock()
         mock_response.status_code = 200
         mock_request.return_value = mock_response
 
-        client = NeuwoRestClient(token="test-token", base_url="https://custom.api.com")
+        client = NeuwoRestClient(
+            token="test-token", base_url="https://custom.api.com"
+        )
 
         with patch(
             "neuwo_api.rest_client.parse_json_response",
@@ -253,30 +289,40 @@ class TestTrainAiTopics:
     """Tests for train_ai_topics methods."""
 
     @patch("neuwo_api.utils.RequestHandler.request")
-    def test_train_ai_topics_success(self, mock_request, sample_training_tag_data):
+    def test_train_ai_topics_success(
+        self, mock_request, sample_training_tag_data
+    ):
         mock_response = Mock()
         mock_response.status_code = 200
         mock_response.text = "[]"
         mock_request.return_value = mock_response
 
-        client = NeuwoRestClient(token="test-token", base_url="https://custom.api.com")
+        client = NeuwoRestClient(
+            token="test-token", base_url="https://custom.api.com"
+        )
 
         with patch(
             "neuwo_api.rest_client.parse_json_response",
             return_value=[sample_training_tag_data],
         ):
-            result = client.train_ai_topics(document_id="doc123", tags=["tag1", "tag2"])
+            result = client.train_ai_topics(
+                document_id="doc123", tags=["tag1", "tag2"]
+            )
 
         assert len(result) == 1
         assert result[0].article_id == "record_id_1"
 
     def test_train_ai_topics_empty_tags(self):
-        client = NeuwoRestClient(token="test-token", base_url="https://custom.api.com")
+        client = NeuwoRestClient(
+            token="test-token", base_url="https://custom.api.com"
+        )
         with pytest.raises(ValidationError, match="TrainingTag values"):
             client.train_ai_topics(document_id="doc123", tags=[])
 
     def test_train_ai_topics_none_tags(self):
-        client = NeuwoRestClient(token="test-token", base_url="https://custom.api.com")
+        client = NeuwoRestClient(
+            token="test-token", base_url="https://custom.api.com"
+        )
         with pytest.raises(ValidationError):
             client.train_ai_topics(document_id="doc123", tags=None)
 
@@ -286,8 +332,12 @@ class TestTrainAiTopics:
         mock_response.status_code = 200
         mock_request.return_value = mock_response
 
-        client = NeuwoRestClient(token="test-token", base_url="https://custom.api.com")
-        result = client.train_ai_topics_raw(document_id="doc123", tags=["tag1", "tag2"])
+        client = NeuwoRestClient(
+            token="test-token", base_url="https://custom.api.com"
+        )
+        result = client.train_ai_topics_raw(
+            document_id="doc123", tags=["tag1", "tag2"]
+        )
 
         assert result == mock_response
         call_args = mock_request.call_args
