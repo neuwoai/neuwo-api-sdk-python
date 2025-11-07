@@ -14,7 +14,7 @@ long_description = (this_directory / "README.md").read_text(encoding="utf-8")
 
 setup(
     name="neuwo_api",
-    version="0.3.0",
+    version="1.0.0",
     description="Neuwo API SDK - Python SDK client for the Neuwo content classification API.",
     long_description=long_description,
     author="Grzegorz Malisz",
@@ -52,7 +52,7 @@ setup(
         ],
     },
     classifiers=[
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
