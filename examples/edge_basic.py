@@ -78,72 +78,10 @@ def analyze_with_origin():
         print(f"Error: {e}")
 
 
-def analyze_multiple_urls():
-    """Analyze multiple URLs in one request."""
-    print("\n" + "=" * 60)
-    print("Example 3: Analyze Multiple URLs")
-    print("=" * 60)
-
-    client = NeuwoEdgeClient(
-        token=EDGE_TOKEN, base_url=BASE_URL, default_origin="https://yourwebsite.com"
-    )
-
-    urls = [
-        "https://neuwo.ai/blog/2025/05/13/lets-break-the-rules-you-set-the-cpm/",
-        "https://neuwo.ai/blog/2025/05/28/the-rise-of-made-for-advertising-mfa-publishers-how-they-impact-the-digital-ad-ecosystem/",
-    ]
-
-    try:
-        results = client.get_ai_topics_list(urls=urls)
-
-        print(f"\nAnalyzed {len(results)} URLs:")
-        for result in results:
-            print(f"\n  URL: {result.url}")
-            print(f"  Tags: {len(result.tags)}")
-            if result.tags:
-                print(f"  Top tag: {result.tags[0].value}")
-
-    except ContentNotAvailableError as e:
-        print(f"Error with one of the URLs: {e}")
-    except NoDataAvailableError as e:
-        print(f"URLs not yet processed: {e}")
-    except Exception as e:
-        print(f"Error: {e}")
-
-
-def find_similar_by_url():
-    """Find similar articles by document URL."""
-    print("\n" + "=" * 60)
-    print("Example 4: Find Similar Articles by URL")
-    print("=" * 60)
-
-    client = NeuwoEdgeClient(
-        token=EDGE_TOKEN, base_url=BASE_URL, default_origin="https://yourwebsite.com"
-    )
-
-    url = "https://neuwo.ai/blog/2025/05/13/lets-break-the-rules-you-set-the-cpm/"
-
-    try:
-        similar = client.get_similar(document_url=url, max_rows=5, past_days=30)
-
-        if similar:
-            print(f"\nFound {len(similar)} similar articles:")
-            for article in similar:
-                print(f"\n  Article: {article.headline or article.article_id}")
-                print(f"  Score: {article.score:.4f}")
-                if article.article_url:
-                    print(f"  URL: {article.article_url}")
-        else:
-            print("\nNo similar articles found")
-
-    except Exception as e:
-        print(f"Error: {e}")
-
-
 def handle_errors():
     """Demonstrate error handling with EDGE API."""
     print("\n" + "=" * 60)
-    print("Example 5: Error Handling")
+    print("Example 3: Error Handling")
     print("=" * 60)
 
     from neuwo_api import ValidationError
@@ -199,8 +137,6 @@ if __name__ == "__main__":
     else:
         analyze_single_url()
         analyze_with_origin()
-        analyze_multiple_urls()
-        find_similar_by_url()
         handle_errors()
 
         print("\n" + "=" * 60)

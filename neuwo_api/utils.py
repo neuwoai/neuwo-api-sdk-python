@@ -6,7 +6,7 @@ response parsing, and other common operations.
 """
 
 import json
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 from urllib.parse import ParseResult, quote, urlencode, urlparse, urlunparse
 
 import requests
@@ -94,27 +94,6 @@ def parse_json_response(response: requests.Response) -> Dict[str, Any]:
         logger.error(f"Failed to parse JSON response: {e}")
         logger.debug(f"Response text: {response_text[:500]}")
         raise NeuwoAPIError(f"Invalid JSON response from API: {e}") from e
-
-
-def prepare_url_list_file(urls: List[str]) -> bytes:
-    """Prepare a comma-separated list of URLs for file upload.
-
-    Args:
-        urls: List of URL strings
-
-    Returns:
-        Bytes content for file upload
-
-    Raises:
-        ValidationError: If any URL is invalid
-    """
-    # Validate all URLs
-    for url in urls:
-        validate_url(url)
-
-    # Create comma-separated list with no spaces
-    content = ",".join(urls)
-    return content.encode("utf-8")
 
 
 def sanitize_content(content: str) -> str:
@@ -368,7 +347,6 @@ class RequestHandler:
         params: Optional[Dict[str, Any]] = None,
         data: Optional[Dict[str, Any]] = None,
         headers: Optional[Dict[str, str]] = None,
-        files: Optional[Dict[str, Any]] = None,
     ) -> requests.Response:
         """Make an HTTP request to the API.
 
@@ -378,7 +356,6 @@ class RequestHandler:
             params: Query parameters
             data: Form data for POST/PUT requests
             headers: Additional HTTP headers
-            files: Files to upload (for multipart/form-data)
 
         Returns:
             Response object
@@ -395,7 +372,7 @@ class RequestHandler:
 
         # Prepare request body
         encoded_data = None
-        if data is not None and files is None:
+        if data is not None:
             if "Content-Type" not in request_headers:
                 request_headers["Content-Type"] = "application/x-www-form-urlencoded"
             encoded_data = self.encode_form_data(data)
@@ -406,8 +383,7 @@ class RequestHandler:
             response = requests.request(
                 method=method,
                 url=url,
-                data=encoded_data if files is None else data,
-                files=files,
+                data=encoded_data,
                 headers=request_headers,
                 timeout=self.timeout,
             )

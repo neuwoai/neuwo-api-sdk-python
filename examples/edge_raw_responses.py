@@ -52,87 +52,10 @@ def get_ai_topics_raw():
         print(f"Error: {e}")
 
 
-def get_ai_topics_list_raw():
-    """Get raw response from batch URL processing."""
-    print("\n" + "=" * 60)
-    print("Example 2: Get AI Topics List (Raw Response)")
-    print("=" * 60)
-
-    client = NeuwoEdgeClient(
-        token=EDGE_TOKEN, base_url=BASE_URL, default_origin="https://yourwebsite.com"
-    )
-
-    urls = [
-        "https://neuwo.ai/blog/2025/05/13/lets-break-the-rules-you-set-the-cpm/",
-        "https://neuwo.ai/blog/2025/05/28/the-rise-of-made-for-advertising-mfa-publishers-how-they-impact-the-digital-ad-ecosystem/",
-    ]
-
-    try:
-        response = client.get_ai_topics_list_raw(urls=urls)
-
-        print(f"\nStatus: {response.status_code}")
-        print(f"Response length: {len(response.text)} bytes")
-
-        # Parse response
-        data = response.json()
-        print(f"\nResponse type: {type(data)}")
-
-        if isinstance(data, list):
-            print(f"Number of results: {len(data)}")
-
-            # Show summary for each result
-            for idx, item in enumerate(data, 1):
-                print(f"\n  Result {idx}:")
-                if "error" in item:
-                    print(f"    Error: {item['error']}")
-                    print(f"    URL: {item.get('url', 'N/A')}")
-                else:
-                    print(f"    URL: {item.get('url', 'N/A')}")
-                    print(f"    Tags: {len(item.get('tags', []))}")
-                    print(f"    Has brand_safety: {'brand_safety' in item}")
-
-    except Exception as e:
-        print(f"Error: {e}")
-
-
-def get_similar_raw():
-    """Get raw response from GetSimilar EDGE endpoint."""
-    print("\n" + "=" * 60)
-    print("Example 3: Get Similar Articles (Raw Response)")
-    print("=" * 60)
-
-    client = NeuwoEdgeClient(
-        token=EDGE_TOKEN, base_url=BASE_URL, default_origin="https://yourwebsite.com"
-    )
-
-    url = "https://neuwo.ai/blog/2025/05/13/lets-break-the-rules-you-set-the-cpm/"
-
-    try:
-        response = client.get_similar_raw(document_url=url)
-
-        print(f"\nStatus: {response.status_code}")
-        print(f"Request URL: {response.url}")
-
-        # Check response
-        similar_articles = response.json()
-
-        if isinstance(similar_articles, list):
-            print(f"\nFound {len(similar_articles)} similar articles")
-
-            if similar_articles:
-                print("\nFirst article (raw):")
-                print(json.dumps(similar_articles[0], indent=2))
-        else:
-            print(f"\nUnexpected response format: {type(similar_articles)}")
-
-    except Exception as e:
-        print(f"Error: {e}")
-
-
 def inspect_response_headers():
     """Inspect HTTP response headers."""
     print("\n" + "=" * 60)
-    print("Example 4: Inspect Response Headers")
+    print("Example 2: Inspect Response Headers")
     print("=" * 60)
 
     client = NeuwoEdgeClient(
@@ -163,7 +86,7 @@ def inspect_response_headers():
 def handle_404_manually():
     """Manually handle 404 "No data yet available" responses."""
     print("\n" + "=" * 60)
-    print("Example 5: Manual 404 Handling")
+    print("Example 3: Manual 404 Handling")
     print("=" * 60)
 
     from neuwo_api.exceptions import NoDataAvailableError
@@ -199,7 +122,7 @@ def handle_404_manually():
 def save_responses_for_debugging():
     """Save raw responses to files for debugging."""
     print("\n" + "=" * 60)
-    print("Example 6: Save Responses for Debugging")
+    print("Example 4: Save Responses for Debugging")
     print("=" * 60)
 
     client = NeuwoEdgeClient(
@@ -249,7 +172,7 @@ def save_responses_for_debugging():
 def compare_response_formats():
     """Compare parsed vs raw response handling."""
     print("\n" + "=" * 60)
-    print("Example 7: Parsed vs Raw Response Comparison")
+    print("Example 5: Parsed vs Raw Response Comparison")
     print("=" * 60)
 
     client = NeuwoEdgeClient(
@@ -313,8 +236,6 @@ if __name__ == "__main__":
         print("   Or edit this script and replace 'your-api-server-base-url'\n")
     else:
         get_ai_topics_raw()
-        get_ai_topics_list_raw()
-        get_similar_raw()
         inspect_response_headers()
         handle_404_manually()
         save_responses_for_debugging()

@@ -21,7 +21,6 @@ from neuwo_api.exceptions import (
 from neuwo_api.utils import (
     RequestHandler,
     parse_json_response,
-    prepare_url_list_file,
     sanitize_content,
     validate_url,
 )
@@ -76,20 +75,6 @@ class TestParseJsonResponse:
         mock_response.text = "not json"
         with pytest.raises(NeuwoAPIError, match="Invalid JSON"):
             parse_json_response(mock_response)
-
-
-class TestPrepareUrlListFile:
-    """Tests for prepare_url_list_file function."""
-
-    def test_valid_urls(self):
-        urls = ["https://example.com", "https://test.com"]
-        result = prepare_url_list_file(urls)
-        assert result == b"https://example.com,https://test.com"
-
-    def test_invalid_url_raises_error(self):
-        urls = ["https://example.com", "not_a_url"]
-        with pytest.raises(ValidationError):
-            prepare_url_list_file(urls)
 
 
 class TestSanitizeContent:
@@ -306,22 +291,6 @@ class TestRequestHandler:
         assert "flag=true" in call_args[1]["data"]
         assert call_args[1]["headers"]["Content-Type"] == "application/x-www-form-urlencoded"
         assert call_args[1]["method"] == "POST"
-
-    @patch("neuwo_api.utils.requests.request")
-    def test_request_with_files(self, mock_request):
-        """Test request with file upload."""
-        mock_response = Mock()
-        mock_response.status_code = 200
-        mock_request.return_value = mock_response
-
-        handler = RequestHandler(token="test-token", base_url="https://api.test.com")
-        files = {"file": ("test.txt", b"content")}
-        handler.request("POST", "/test", files=files)
-
-        call_args = mock_request.call_args
-        assert call_args[1]["files"] == files
-        # When files are present, data should not be encoded
-        assert "Content-Type" not in call_args[1].get("headers", {})
 
     @patch("neuwo_api.utils.requests.request")
     def test_request_with_custom_headers(self, mock_request):

@@ -217,33 +217,6 @@ response = client.get_ai_topics_wait(
 )
 ```
 
-##### Get AI Topics (Multiple URLs)
-
-```python
-# From list
-results = client.get_ai_topics_list(
-    urls=["https://example.com/1", "https://example.com/2"],
-    origin="https://yoursite.com"
-)
-
-# From file bytes
-with open("urls.txt", "rb") as f:
-    urls_as_bytes = f.read()
-result = client.get_ai_topics_list(urls_as_bytes)
-```
-
-##### Get Similar Articles
-
-```python
-articles = client.get_similar(
-    document_url="https://example.com/article",  # Required
-    max_rows=10,                                 # Optional
-    past_days=30,                                # Optional
-    publication_ids=["pub1", "pub2"],            # Optional
-    origin="https://yoursite.com"                # Optional
-)
-```
-
 #### Raw Response Methods
 
 All methods have `_raw` variants that return the raw `requests.Response` object:
